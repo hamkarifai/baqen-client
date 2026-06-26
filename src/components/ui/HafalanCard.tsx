@@ -58,7 +58,7 @@ export const HafalanCard = ({ item, onClick }: HafalanCardProps) => {
   return (
     <div
       onClick={onClick}
-      className="group relative flex flex-col p-7 rounded-[2.5rem] bg-gray-900/40 border border-white/5 hover:border-amber-500/50 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/10 hover:-translate-y-2 overflow-hidden cursor-pointer"
+      className="group relative flex flex-col p-4 md:p-7 rounded-3xl md:rounded-[2.5rem] bg-gray-900/40 border border-white/5 hover:border-amber-500/50 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/10 hover:-translate-y-2 overflow-hidden cursor-pointer"
     >
       {/* Glow Effect */}
       <div className="absolute inset-0 bg-linear-to-br from-amber-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -70,11 +70,11 @@ export const HafalanCard = ({ item, onClick }: HafalanCardProps) => {
 
       <div className="relative z-10 flex flex-col h-full">
         <div className="flex justify-between items-start mb-6">
-          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 group-hover:bg-amber-500/20 group-hover:border-amber-500/30 transition-all duration-300 shadow-inner group-hover:scale-110">
-            <BookOpen className="w-6 h-6 text-gray-400 group-hover:text-amber-400 transition-colors" />
+          <div className="p-2 md:p-3.5 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 group-hover:bg-amber-500/20 group-hover:border-amber-500/30 transition-all duration-300 shadow-inner group-hover:scale-110">
+            <BookOpen className="w-4 md:w-6 h-4 md:h-6 text-gray-400 group-hover:text-amber-400 transition-colors" />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
             <span
               className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border backdrop-blur-md ${
                 item.status === "fsrs_active"
@@ -91,12 +91,12 @@ export const HafalanCard = ({ item, onClick }: HafalanCardProps) => {
           </div>
         </div>
 
-        <div className="mb-8">
-          <h3 className="text-3xl font-serif text-white mb-2 group-hover:text-amber-400 transition-colors duration-300">
+        <div className="mb-4 md:mb-8">
+          <h3 className="text-lg md:text-3xl font-serif text-white mb-2 group-hover:text-amber-400 transition-colors duration-300">
             {displayTitle}
           </h3>
           <div className="flex items-center gap-2 text-gray-400 group-hover:text-gray-300 transition-colors">
-            <Layers className="w-4 h-4 text-amber-500/50" />
+            <Layers className="w-3 h-3 md:w-4 md:h-4  text-amber-500/50" />
             <span className="font-medium">{displaySubtitle}</span>
           </div>
         </div>
@@ -104,11 +104,11 @@ export const HafalanCard = ({ item, onClick }: HafalanCardProps) => {
         <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
           <div className="flex flex-col gap-3 text-xs font-medium text-gray-500">
             <div className="flex items-center gap-2 group-hover:text-gray-400 transition-colors">
-              <Clock className="w-4 h-4 text-amber-500/50" />
+              <Clock className="w-3 h-3 md:w-4 md:h-4  text-amber-500/50" />
               <span>{item.review_count}x Review</span>
             </div>
             <div className="flex items-center gap-2 group-hover:text-gray-400 transition-colors">
-              <CheckCircle className="w-4 h-4 text-green-500/50" />
+              <CheckCircle className="w-3 h-3 md:w-4 md:h-4  text-green-500/50" />
               <span>
                 {new Date(item.created_at).toLocaleDateString("id-ID", {
                   month: "short",
@@ -118,7 +118,7 @@ export const HafalanCard = ({ item, onClick }: HafalanCardProps) => {
             </div>
             {item.next_review_at && (
               <div className="flex items-center gap-2 group-hover:text-gray-400 transition-colors">
-                <Calendar className="w-4 h-4 text-blue-500/50" />
+                <Calendar className="w-3 h-3 md:w-4 md:h-4  text-blue-500/50" />
                 <span> 
                   {new Date(item.next_review_at).toLocaleDateString("id-ID", {
                     month: "short",
