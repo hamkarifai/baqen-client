@@ -202,7 +202,16 @@ export function getStatusDisplayByPhase(phase: ActionPhase): StatusDisplay {
   }
 }
 
-export function parseContentRef(contentRef: string): ParsedContentRef {
+export function parseContentRef(contentRef?: string | null): ParsedContentRef {
+  if (!contentRef) {
+    return {
+      type: "page",
+      title: "Item belum lengkap",
+      subtitle: "",
+      range: "?",
+    };
+  }
+
   const parts = contentRef.split(":");
 
   if (parts[0] === "surah") {

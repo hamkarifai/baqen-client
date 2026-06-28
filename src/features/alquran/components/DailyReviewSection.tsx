@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Flame, Star, Clock, BookOpen, Play, CheckCircle2 } from "lucide-react";
 import { useDailyReviewEstimate, type JuzReviewEstimate } from "@/features/alquran/hooks/useDailyReviewEstimate";
-import type { DailyTask, MyItemDetail } from "@/features/alquran/types/quran.types";
+import type { DailyTask, DailyTaskGroup, MyItemDetail } from "@/features/alquran/types/quran.types";
 import { DailyReviewFlashcardModal } from "@/features/alquran/components/DailyReviewFlashcardModal";
+import { parseContentRef } from "@/features/alquran/components/item-detail/ItemDetailView.config";
 import { alquranService } from "../services/alquran.services";
 
 /* ------------------------------------------------------------------ */
@@ -51,9 +52,12 @@ export const DailyReviewSection = () => {
   // Fetch daily tasks to get completed state from API
   const refreshDailyState = useCallback(async () => {
     try {
-      const response = await alquranService.getDaily("quran");
+      const response: DailyTaskGroup[] = await alquranService.getDaily("quran");
       const completed = new Set(
-        response.filter((t) => t.state === "completed").map((t) => t.item_id),
+        response
+          .flatMap((group) => group.items)
+          .filter((t) => t.state === "completed" || t.state === "done")
+          .map((t) => t.item_id),
       );
       setReviewedIds(completed);
     } catch {
@@ -125,15 +129,16 @@ export const DailyReviewSection = () => {
     if (!activeJuz) return;
 
     const reviewedId = activeJuz.items[queueIndex]?.item_id;
+    const nextReviewed = new Set(reviewedIds);
 
     // Mark as reviewed in component state
     if (reviewedId) {
-      setReviewedIds((prev) => new Set([...prev, reviewedId]));
+      nextReviewed.add(reviewedId);
+      setReviewedIds(nextReviewed);
     }
 
     // Find next unreviewed item
-    const updatedReviewed = new Set([...reviewedIds, reviewedId ?? ""]);
-    const remaining = activeJuz.items.filter((qi) => !updatedReviewed.has(qi.item_id));
+    const remaining = activeJuz.items.filter((qi) => !nextReviewed.has(qi.item_id));
 
     if (remaining.length > 0) {
       const nextIdx = activeJuz.items.findIndex((qi) => qi.item_id === remaining[0].item_id);
@@ -145,7 +150,7 @@ export const DailyReviewSection = () => {
       const nextJuz = filteredJuzGroups
         .slice(currentGroupIndex + 1)
         .map((juz) => {
-          const items = juz.items.filter((item) => !updatedReviewed.has(item.item_id));
+          const items = juz.items.filter((item) => !nextReviewed.has(item.item_id));
           const totalEstimatedSeconds = items.reduce(
             (sum, item) => sum + (item.estimatedReviewSeconds || 0),
             0,
@@ -242,7 +247,36 @@ export const DailyReviewSection = () => {
                       <h3 className="text-2xl font-black text-white group-hover:text-emerald-400 transition-colors">
                         Juz {juz.juz_index}
                       </h3>
+                      <p className="text-gray-500 text-xs mt-1">
+                        {juz.itemCount} item di dalam wadah ini
+                      </p>
                     </div>
+                  </div>
+
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {juz.items.slice(0, 4).map((item, itemIndex) => {
+                      const parsed = item.content_ref
+                        ? parseContentRef(item.content_ref)
+                        : null;
+                      return (
+                        <span
+                          key={item.item_id}
+                          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-gray-300"
+                        >
+                          <span className="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-300 flex items-center justify-center font-bold">
+                            {itemIndex + 1}
+                          </span>
+                          <span className="max-w-[11rem] truncate">
+                            {parsed?.title || item.content_ref || `Item ${itemIndex + 1}`}
+                          </span>
+                        </span>
+                      );
+                    })}
+                    {juz.itemCount > 4 && (
+                      <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-gray-400">
+                        +{juz.itemCount - 4} item lagi
+                      </span>
+                    )}
                   </div>
 
                   {/* Footer */}
@@ -250,7 +284,7 @@ export const DailyReviewSection = () => {
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-1.5">
                         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                        <span className="text-emerald-300 font-bold text-sm">{juz.itemCount} item</span>
+                        <span className="text-emerald-300 font-bold text-sm">{juz.itemCount} item siap review</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-gray-500 text-xs">
                         <Clock className="w-3.5 h-3.5 shrink-0" />

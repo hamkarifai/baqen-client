@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { alquranService } from "@/features/alquran/services/alquran.services";
-import type { DailyTask } from "@/features/alquran/types/quran.types";
+import type { DailyTask, DailyTaskGroup } from "@/features/alquran/types/quran.types";
 
 // ItemWithEstimate wraps a DailyTask so status is always accurate
 export interface ItemWithEstimate {
@@ -46,7 +46,8 @@ export const useDailyReviewEstimate = () => {
 
       // Use the daily endpoint — it already filters items due today,
       // includes the correct status for each item, and provides juz_index.
-      const dailyTasks: DailyTask[] = await alquranService.getDaily("quran");
+      const dailyGroups: DailyTaskGroup[] = await alquranService.getDaily("quran");
+      const dailyTasks = dailyGroups.flatMap((group) => group.items);
 
       // Only include quran items that are pending review (not yet done)
       // and have a reviewable status (interval or fsrs_active/graduate).
@@ -66,6 +67,10 @@ export const useDailyReviewEstimate = () => {
         );
       });
 
+      const dedupedTasks = Array.from(
+        new Map(reviewableTasks.map((task) => [task.item_id, task])).values(),
+      );
+
       // We need juz_id — fetch my-items to get juz_id per juz_index
       const myItemsResponse = await alquranService.getMyItems("quran");
       const juzIdByIndex = new Map<number, string>();
@@ -76,7 +81,7 @@ export const useDailyReviewEstimate = () => {
       // Group by juz_index
       const juzMap = new Map<number, JuzReviewEstimate>();
 
-      reviewableTasks.forEach((task) => {
+      dedupedTasks.forEach((task) => {
         const juzIndex = task.juz_index ?? 0;
         // Use juz_index from the task; if 0 (not found in juz_items), still
         // include the item under a "Lainnya" bucket with index 0 so it's not lost.

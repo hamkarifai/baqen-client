@@ -24,7 +24,9 @@ interface DailyReviewFlashcardModalProps {
   queuePosition?: number;
   queueTotal?: number;
   onClose: () => void;
-  onReviewed: (result: ReviewIntervalResponse | ReviewFsrsResponse) => Promise<void> | void;
+  onReviewed: (
+    result: ReviewIntervalResponse | ReviewFsrsResponse,
+  ) => Promise<void> | void;
 }
 
 const REVIEW_BUTTONS = [
@@ -83,7 +85,9 @@ export const DailyReviewFlashcardModal = ({
   onReviewed,
 }: DailyReviewFlashcardModalProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [submittingButtonId, setSubmittingButtonId] = useState<1 | 2 | 3 | 4 | null>(null);
+  const [submittingButtonId, setSubmittingButtonId] = useState<
+    1 | 2 | 3 | 4 | null
+  >(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [nextIntervalDays, setNextIntervalDays] = useState(0);
   const [nextReviewDate, setNextReviewDate] = useState("");
@@ -98,19 +102,36 @@ export const DailyReviewFlashcardModal = ({
     setShowSuccessModal(false);
   }, [task, isOpen]);
 
+  useEffect(() => {
+    if (!showSuccessModal) return;
+
+    const timer = window.setTimeout(() => {
+      setShowSuccessModal(false);
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [showSuccessModal]);
+
   if (!isOpen || !task) return null;
 
   const info = task.content_ref ? parseContentRef(task.content_ref) : null;
-  const title = info?.title || (task.juz_index > 0 ? `Juz ${task.juz_index}` : "Review Harian");
-  const subtitle = info?.subtitle || "";
+  const title =
+    info?.title || task.content_ref || `Item ${queuePosition}`;
+  const subtitle = info?.subtitle || task.content_ref || "";
 
   const itemStatus = task.status?.toLowerCase() || "";
-  const useFsrsReview = itemStatus === "fsrs_active" || itemStatus === "graduated" || itemStatus === "graduate";
+  const useFsrsReview =
+    itemStatus === "fsrs_active" ||
+    itemStatus === "graduated" ||
+    itemStatus === "graduate";
   const loading = useFsrsReview ? loadingFsrs : loadingInterval;
 
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString("id-ID", {
-      weekday: "long", year: "numeric", month: "long", day: "numeric",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
 
   const progressPct = Math.round((queuePosition / queueTotal) * 100);
@@ -123,9 +144,16 @@ export const DailyReviewFlashcardModal = ({
       let response: ReviewIntervalResponse | ReviewFsrsResponse;
 
       if (useFsrsReview) {
-        response = await reviewFsrs(task.item_id, btn.payloadValue as 1 | 2 | 3 | 4);
+        response = await reviewFsrs(
+          task.item_id,
+          btn.payloadValue as 1 | 2 | 3 | 4,
+        );
         const fsrsData = (response as ReviewFsrsResponse).data;
-        if (fsrsData && typeof fsrsData === "object" && "next_review_at" in fsrsData) {
+        if (
+          fsrsData &&
+          typeof fsrsData === "object" &&
+          "next_review_at" in fsrsData
+        ) {
           setNextReviewDate(formatDate(fsrsData.next_review_at as string));
           setNextIntervalDays((fsrsData.next_interval_days as number) || 1);
         }
@@ -141,9 +169,11 @@ export const DailyReviewFlashcardModal = ({
 
       await onReviewed(response);
 
-      window.dispatchEvent(new CustomEvent("alquran:item-reviewed", {
-        detail: { itemId: task.item_id, rating: btn.payloadValue },
-      }));
+      window.dispatchEvent(
+        new CustomEvent("alquran:item-reviewed", {
+          detail: { itemId: task.item_id, rating: btn.payloadValue },
+        }),
+      );
 
       setShowSuccessModal(true);
     } catch {
@@ -200,11 +230,28 @@ export const DailyReviewFlashcardModal = ({
               </div>
 
               <div className="p-6 sm:p-8 rounded-2xl border border-emerald-300/20 bg-emerald-400/8 mb-6">
+                <div className="flex flex-wrap items-center gap-2 mb-3 text-xs font-bold uppercase tracking-wider">
+                  <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">
+                    Juz {task.juz_index}
+                  </span>
+                  {queueTotal > 1 && (
+                    <span className="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/20 text-emerald-300">
+                      Item {queuePosition} dari {queueTotal}
+                    </span>
+                  )}
+                </div>
                 <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-snug wrap-break-word mb-2">
                   {title}
                 </h3>
                 {subtitle && (
-                  <p className="text-emerald-200/70 text-base sm:text-lg wrap-break-word">{subtitle}</p>
+                  <p className="text-emerald-200/70 text-base sm:text-lg wrap-break-word">
+                    {subtitle}
+                  </p>
+                )}
+                {!info && task.content_ref && (
+                  <p className="mt-3 text-xs text-gray-400 font-mono break-all">
+                    {task.content_ref}
+                  </p>
                 )}
               </div>
 
@@ -246,8 +293,12 @@ export const DailyReviewFlashcardModal = ({
               </div>
 
               <div className="mb-4">
-                <h3 className="text-lg font-black text-white mb-1">Seberapa kuat hafalanmu?</h3>
-                <p className="text-gray-500 text-sm">Pilih satu — nilai langsung tersimpan.</p>
+                <h3 className="text-lg font-black text-white mb-1">
+                  Seberapa kuat hafalanmu?
+                </h3>
+                <p className="text-gray-500 text-sm">
+                  Pilih satu — nilai langsung tersimpan.
+                </p>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -261,7 +312,9 @@ export const DailyReviewFlashcardModal = ({
                       disabled={submittingButtonId !== null}
                       className={`relative overflow-hidden rounded-2xl border-2 flex flex-col text-left transition-all duration-200 disabled:opacity-60 disabled:pointer-events-none ${btn.bg} ${btn.textColor}`}
                     >
-                      <div className={`flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-black uppercase tracking-wide border-b border-white/10 ${btn.headerBg}`}>
+                      <div
+                        className={`flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-black uppercase tracking-wide border-b border-white/10 ${btn.headerBg}`}
+                      >
                         <span>{btn.emoji}</span>
                         <span>{btn.header}</span>
                       </div>
@@ -269,13 +322,20 @@ export const DailyReviewFlashcardModal = ({
                         {isSubmitting ? (
                           <div className="flex flex-col items-center justify-center gap-2 py-3">
                             <Loader2 className="w-5 h-5 animate-spin opacity-80" />
-                            <span className="text-xs opacity-80">Menyimpan...</span>
+                            <span className="text-xs opacity-80">
+                              Menyimpan...
+                            </span>
                           </div>
                         ) : (
                           <ul className="space-y-1.5">
                             {btn.descriptions.map((d) => (
-                              <li key={d} className="flex items-center gap-2 text-xs font-medium">
-                                <span className={`shrink-0 w-1.5 h-1.5 rounded-full ${btn.dot}`} />
+                              <li
+                                key={d}
+                                className="flex items-center gap-2 text-xs font-medium"
+                              >
+                                <span
+                                  className={`shrink-0 w-1.5 h-1.5 rounded-full ${btn.dot}`}
+                                />
                                 {d}
                               </li>
                             ))}
@@ -293,7 +353,7 @@ export const DailyReviewFlashcardModal = ({
 
       {/* Success overlay */}
       {showSuccessModal && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+        <div className="absolute inset-0 z-10 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm pointer-events-none">
           <div className="w-full max-w-sm">
             <div className="rounded-3xl border border-white/10 bg-linear-to-br from-[#1A2232] via-[#151B28] to-[#111826] shadow-[0_40px_100px_rgba(0,0,0,0.7)] p-6 md:p-8">
               <div className="flex justify-center mb-5">
@@ -301,31 +361,34 @@ export const DailyReviewFlashcardModal = ({
                   <Check className="w-8 h-8 text-emerald-400" />
                 </div>
               </div>
-              <h3 className="text-xl font-black text-white text-center mb-1">Review Berhasil!</h3>
-              <p className="text-gray-400 text-center text-sm mb-5">Hafalanmu sudah tercatat.</p>
+              <h3 className="text-xl font-black text-white text-center mb-1">
+                Review Berhasil!
+              </h3>
+              <p className="text-gray-400 text-center text-sm mb-5">
+                Hafalanmu sudah tercatat.
+              </p>
 
               <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 mb-5">
                 <div className="flex items-center gap-2 mb-2">
                   <CalendarDays className="w-4 h-4 text-emerald-400" />
-                  <p className="text-emerald-300/70 text-xs font-bold uppercase tracking-wider">Review Selanjutnya</p>
+                  <p className="text-emerald-300/70 text-xs font-bold uppercase tracking-wider">
+                    Review Selanjutnya
+                  </p>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-black text-white">{nextIntervalDays}</p>
+                  <p className="text-3xl font-black text-white">
+                    {nextIntervalDays}
+                  </p>
                   <span className="text-gray-400 text-sm">hari lagi</span>
                 </div>
-                <p className="text-emerald-200/60 text-xs mt-1">{nextReviewDate || "-"}</p>
+                <p className="text-emerald-200/60 text-xs mt-1">
+                  {nextReviewDate || "-"}
+                </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  if (queuePosition >= queueTotal) onClose();
-                }}
-                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all"
-              >
-                {queuePosition < queueTotal ? "Lanjut →" : "Selesai"}
-              </button>
+              <div className="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold text-center">
+                {queuePosition < queueTotal ? "Lanjut otomatis..." : "Selesai"}
+              </div>
             </div>
           </div>
         </div>

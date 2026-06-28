@@ -71,7 +71,12 @@ export interface DailyTask {
   estimated_review_seconds?: number;
 }
 
-export type DailyTasksResponse = DailyTask[];
+export interface DailyTaskGroup {
+  juz_index: number;
+  items: DailyTask[];
+}
+
+export type DailyTasksResponse = DailyTaskGroup[];
 
 export interface ReviewIntervalPayload {
   rating: 1 | 2 | 3;
