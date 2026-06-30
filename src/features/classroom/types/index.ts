@@ -94,4 +94,11 @@ export type GetClassBook = {
   book: Book;
 };
 
+// REMOVE BOOK FROM CLASS
 
+export type RemoveBookFromClassResponse = {
+  status: number;
+  message: string;
+  timestamp: string;
+  path: string;
+};

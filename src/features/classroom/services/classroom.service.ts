@@ -4,6 +4,7 @@ import type {
   CreateClassPayload,
   GetClassBook,
   JoinClassPayload,
+  RemoveBookFromClassResponse,
   UpdateClassPayload,
 } from "../types";
 import { api } from "@/services/api";
@@ -104,7 +105,21 @@ export const classroomService = {
     classId: string,
     payload: { book_id: string; order: number },
   ): Promise<any> => {
-    const response = await api.post(`/api/v1/classes/${classId}/books`, payload);
+    const response = await api.post(
+      `/api/v1/classes/${classId}/books`,
+      payload,
+    );
+    return response.data.data;
+  },
+
+  // REMOVE BOOK FROM CLASS (TEACHER)
+  removeBookFromClass: async (
+    classId: string,
+    bookId: string,
+  ): Promise<RemoveBookFromClassResponse> => {
+    const response = await api.delete(
+      `/api/v1/classes/${classId}/books/${bookId}`,
+    );
     return response.data.data;
   },
 };

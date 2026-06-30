@@ -101,7 +101,25 @@ export const useAddBookToClass = () => {
       }),
     onSuccess: (_, variables) => {
       // Invalidate and refetch the class books list
-      queryClient.invalidateQueries({ queryKey: ["class-book", variables.classId] });
+      queryClient.invalidateQueries({
+        queryKey: ["class-book", variables.classId],
+      });
+    },
+  });
+};
+
+// Hook to remove book from classroom
+export const useRemoveBookFromClass = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: { classId: string; bookId: string }) =>
+      classroomService.removeBookFromClass(payload.classId, payload.bookId),
+    onSuccess: (_, variables) => {
+      // Invalidate and refetch the class books list
+      queryClient.invalidateQueries({
+        queryKey: ["class-book", variables.classId],
+      });
     },
   });
 };

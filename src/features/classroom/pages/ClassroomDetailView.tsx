@@ -49,17 +49,19 @@ export const ClassroomDetailView = () => {
     error: bookError,
   } = useGetClassBook(classroomId!);
 
-  console.log("BOOK DATA", bookData)
-
   const { data: teacherClasses } = useMyClassesTeacher();
   const { data: studentClasses } = useMyJoinedClass();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const handleClickOutside = () => {
+    setIsDropdownOpen(false);
+  };
 
   const allClasses = [...(teacherClasses || []), ...(studentClasses || [])];
   const classroom = allClasses.find((c) => c.id === classroomId);
   const userRole = useAuthStore((state) => state.user?.role);
-
   const isTeacher = userRole === "teacher";
-
+  console.log("isTeacher:", isTeacher);
   // UX Guard: Memastikan jika user adalah student, tab otomatis terkunci di 'books'
   useEffect(() => {
     if (!isTeacher) {
@@ -289,7 +291,12 @@ export const ClassroomDetailView = () => {
                 {filteredBooks.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-2">
                     {filteredBooks.map((book, idx) => (
-                      <BookCard key={idx} book={book.book} />
+                      <BookCard
+                        classroomId={classroomId}
+                        key={idx}
+                        book={book.book}
+                        showMenu={isTeacher}
+                      />
                     ))}
                   </div>
                 ) : (

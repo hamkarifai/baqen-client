@@ -1,25 +1,60 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { MoreVertical, Edit2, Trash2, Calendar, Box } from "lucide-react";
+import {
+  MoreVertical,
+  Edit2,
+  Trash2,
+  Calendar,
+  Box,
+  MoreHorizontalIcon,
+} from "lucide-react";
 import type { Book } from "../types/personal.types";
+import { useRemoveBookFromClass } from "@/features/classroom/hooks/useClassroom";
 
 export interface BookCardProps {
   book: Book;
+  showMenu?: boolean;
+  classroomId?: string;
   onClick?: () => void;
   onEdit?: (book: Book) => void;
   onDelete?: (book: Book) => void;
 }
 
-export const BookCard = ({ book, onClick, onEdit, onDelete }: BookCardProps) => {
+export const BookCard = ({
+  book,
+  showMenu,
+  classroomId,
+  onClick,
+  onEdit,
+  onDelete,
+}: BookCardProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const removeBookMutation = useRemoveBookFromClass();
+
   const btnRef = useRef<HTMLButtonElement>(null);
+
+  const handleMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDropdownOpen(false);
+    removeBookMutation.mutate({
+      classId: classroomId!,
+      bookId: book.id,
+    });
+  };
 
   const formattedDate = new Date(book.created_at).toLocaleDateString("id-ID", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
+  console.log("showMenu:", showMenu);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -91,30 +126,52 @@ export const BookCard = ({ book, onClick, onEdit, onDelete }: BookCardProps) => 
       )}
 
       {/* Dropdown via portal — never clipped */}
-      {menuOpen && createPortal(
-        <div
-          ref={menuRef}
-          className="fixed w-44 bg-[#161D26]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
-          style={{ top: menuPos.top, right: menuPos.right, zIndex: 9999 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            onClick={handleEdit}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-200 hover:text-white hover:bg-blue-500/20 transition-colors text-left"
+      {menuOpen &&
+        createPortal(
+          <div
+            ref={menuRef}
+            className="fixed w-44 bg-[#161D26]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            style={{ top: menuPos.top, right: menuPos.right, zIndex: 9999 }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <Edit2 className="w-4 h-4 text-blue-400" />
-            <span>Edit Buku</span>
-          </button>
-          <div className="w-full h-px bg-white/5" />
+            <button
+              onClick={handleEdit}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-200 hover:text-white hover:bg-blue-500/20 transition-colors text-left"
+            >
+              <Edit2 className="w-4 h-4 text-blue-400" />
+              <span>Edit Buku</span>
+            </button>
+            <div className="w-full h-px bg-white/5" />
+            <button
+              onClick={handleDelete}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-left"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Hapus Buku</span>
+            </button>
+          </div>,
+          document.body,
+        )}
+
+      {showMenu && (
+        <button
+          onClick={handleMenuClick}
+          className="absolute bg-black/40 backdrop-blur-md shadow-2xl shadow-black z-50 top-4 right-4 p-1 rounded-full hover:bg-black/50"
+        >
+          <MoreVertical className="w-5 h-5" />
+        </button>
+      )}
+
+      {isDropdownOpen && (
+        <div className="absolute top-10 mt-2 right-2 z-50 min-w-[140px] bg-[#0E131F] border border-white/[0.08] rounded-lg shadow-2xl overflow-hidden backdrop-blur-xl">
           <button
-            onClick={handleDelete}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-left"
+            onClick={handleRemove}
+            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
           >
             <Trash2 className="w-4 h-4" />
-            <span>Hapus Buku</span>
+            <span>Remove from class</span>
           </button>
-        </div>,
-        document.body,
+        </div>
       )}
 
       {/* Image header */}
@@ -160,24 +217,31 @@ export const BookCard = ({ book, onClick, onEdit, onDelete }: BookCardProps) => 
             {book.title}
           </h3>
           <p className="hidden sm:block text-sm text-gray-400/90 leading-relaxed font-light line-clamp-2">
-            {book.description || "Tidak ada sinopsis atau deskripsi untuk kitab ini."}
+            {book.description ||
+              "Tidak ada sinopsis atau deskripsi untuk kitab ini."}
           </p>
         </div>
 
         {/* Stats — desktop only */}
         <div className="hidden sm:flex justify-between items-center bg-white/5 border border-white/5 rounded-2xl p-4 mb-5 shadow-inner">
           <div className="flex flex-col items-center flex-1">
-            <div className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-1">Total</div>
+            <div className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-1">
+              Total
+            </div>
             <span className="text-xl font-black text-gray-200">0</span>
           </div>
           <div className="w-px h-8 bg-white/5" />
           <div className="flex flex-col items-center flex-1">
-            <div className="text-[9px] text-blue-500/70 font-bold uppercase tracking-widest mb-1">Aktif</div>
+            <div className="text-[9px] text-blue-500/70 font-bold uppercase tracking-widest mb-1">
+              Aktif
+            </div>
             <span className="text-xl font-black text-blue-400">0</span>
           </div>
           <div className="w-px h-8 bg-white/5" />
           <div className="flex flex-col items-center flex-1">
-            <div className="text-[9px] text-emerald-500/70 font-bold uppercase tracking-widest mb-1">Lulus</div>
+            <div className="text-[9px] text-emerald-500/70 font-bold uppercase tracking-widest mb-1">
+              Lulus
+            </div>
             <span className="text-xl font-black text-emerald-400">0</span>
           </div>
         </div>
