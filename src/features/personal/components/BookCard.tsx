@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { Book } from "../types/personal.types";
 import { useRemoveBookFromClass } from "@/features/classroom/hooks/useClassroom";
+import { toast } from "sonner";
 
 export interface BookCardProps {
   book: Book;
@@ -41,12 +42,24 @@ export const BookCard = ({
   };
 
   const handleRemove = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsDropdownOpen(false);
-    removeBookMutation.mutate({
-      classId: classroomId!,
-      bookId: book.id,
-    });
+    const toastId = toast.loading("Menghapus buku dari kelas...");
+    try {
+      e.stopPropagation();
+      setIsDropdownOpen(false);
+      removeBookMutation.mutate({
+        classId: classroomId!,
+        bookId: book.id,
+      });
+      toast.success("Buku berhasil dihapus dari kelas!", {
+        id: toastId,
+        duration: 3000,
+      });
+    } catch (err: any) {
+      toast.error(err?.message || "Gagal menghapus buku dari kelas.", {
+        id: toastId,
+        duration: 4000,
+      });
+    }
   };
 
   const formattedDate = new Date(book.created_at).toLocaleDateString("id-ID", {
