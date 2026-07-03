@@ -150,7 +150,7 @@ export const TeacherDashboardPage = () => {
                     title={classroom.name}
                     description={classroom.description}
                     coverImage={classroom?.cover_image}
-                    bookCount={12}
+                    bookCount={classroom.book_count}
                     memberCount={classroom.student_count}
                     classCode={classroom.class_code}
                     tone={tones[toneIndex]}

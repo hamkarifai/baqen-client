@@ -13,6 +13,7 @@ export interface ClassItem {
   is_active: boolean;
   owner_name: string;
   student_count: number;
+  book_count: number;
   created_at: string;
   updated_at: string;
 }

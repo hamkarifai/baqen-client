@@ -131,7 +131,7 @@ export const StudentDashboard = () => {
                           title={item.name}
                           coverImage={item.cover_image}
                           memberCount={item.student_count}
-                          bookCount={0}
+                          bookCount={item.book_count}
                           tone={tones[toneIndex]}
                           description={item.description}
                           teacherName={item.owner_name}
