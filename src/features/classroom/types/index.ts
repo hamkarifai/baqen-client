@@ -60,6 +60,7 @@ export interface ClassroomCardProps {
   classCode?: string;
   teacherName?: string;
   memberCount: number;
+  type: string;
   bookCount: number;
   nextSessionLabel?: string;
   status?: "active" | "draft" | "archived";

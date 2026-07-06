@@ -145,11 +145,12 @@ export const TeacherDashboardPage = () => {
                 const toneIndex = index % tones.length;
                 return (
                   <ClassroomCard
-                    key={classroom.id}
-                    id={classroom.id}
-                    title={classroom.name}
-                    description={classroom.description}
-                    coverImage={classroom?.cover_image}
+                  key={classroom.id}
+                  id={classroom.id}
+                  title={classroom.name}
+                  description={classroom.description}
+                  type={classroom.type}
+                  coverImage={classroom?.cover_image}
                     bookCount={classroom.book_count}
                     memberCount={classroom.student_count}
                     classCode={classroom.class_code}

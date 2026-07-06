@@ -1,4 +1,11 @@
-import { BookOpen, Code, GraduationCap, QrCode, Users } from "lucide-react";
+import {
+  BookOpen,
+  BookOpenText,
+  Code,
+  GraduationCap,
+  QrCode,
+  Users,
+} from "lucide-react";
 
 import type { ClassroomCardProps } from "@/features/classroom/types/index";
 
@@ -13,7 +20,7 @@ export const ClassroomCard = ({
   memberCount,
   teacherName,
   bookCount,
-  status = "active",
+  type,
   tone = "blue",
   coverImage,
   onClick,
@@ -68,7 +75,7 @@ export const ClassroomCard = ({
             className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest backdrop-blur-md ${theme.border} ${theme.softBg} ${theme.text}`}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-current" />
-            {statusLabel[status]}
+            {type}
           </span>
         </div>
 
