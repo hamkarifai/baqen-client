@@ -1,6 +1,7 @@
 import { api } from "@/lib/axios";
 import type {
   ActivateFsrsResponse,
+  ClassJuzCreateResponse,
   CreateJuzItemPayload,
   CreateJuzItemResponse,
   CreateJuzResponse,
@@ -54,8 +55,19 @@ export const alquranService = {
     return response.data;
   },
 
-  async getJuz(): Promise<GetJuzResponse> {
-    const response = await api.get("/api/v1/juz");
+  async createClassJuz(
+    juzIndex: number,
+    classId: string,
+  ): Promise<ClassJuzCreateResponse> {
+    const response = await api.post(
+      `/api/v1/juz/${juzIndex}?class_id=${encodeURIComponent(classId)}`,
+    );
+    return response.data;
+  },
+
+  async getJuz(classId?: string): Promise<GetJuzResponse> {
+    const query = classId ? `?class_id=${encodeURIComponent(classId)}` : "";
+    const response = await api.get(`/api/v1/juz${query}`);
     return response.data;
   },
 

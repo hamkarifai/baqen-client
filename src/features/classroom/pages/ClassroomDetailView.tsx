@@ -26,6 +26,7 @@ import { toneStyles, statusLabel } from "../constants";
 import { Button } from "@/components/ui/button";
 import BackgroundAmbience from "../components/shared/BackgroundAmbience";
 import MobileSidebarOverlay from "../components/navigation/MobileSidebarOverlay";
+import { QuranClassroomDetailView } from "./QuranClassroomDetailView";
 import {
   BookCard,
   type BookCardProps,
@@ -90,6 +91,16 @@ export const ClassroomDetailView = () => {
           </Button>
         </div>
       </div>
+    );
+  }
+
+  if (classroom.type === "quran") {
+    return (
+      <QuranClassroomDetailView
+        classroom={classroom}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
     );
   }
 

@@ -1,7 +1,5 @@
 import {
   BookOpen,
-  BookOpenText,
-  Code,
   GraduationCap,
   QrCode,
   Users,
@@ -32,6 +30,9 @@ export const ClassroomCard = ({
   const userRole = useAuthStore((state) => state.user?.role);
 
   const isTeacher = userRole === "teacher";
+  const isQuranClass = type === "quran";
+  const contentLabel = isQuranClass ? "Juz" : "Kitab";
+  const typeLabel = isQuranClass ? "Kelas Quran" : "Kelas Buku";
 
   return (
     <article
@@ -75,7 +76,7 @@ export const ClassroomCard = ({
             className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest backdrop-blur-md ${theme.border} ${theme.softBg} ${theme.text}`}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-current" />
-            {type}
+            {typeLabel}
           </span>
         </div>
 
@@ -143,7 +144,7 @@ export const ClassroomCard = ({
                 {bookCount}
               </p>
               <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                Kitab
+                {contentLabel}
               </p>
             </div>
           </div>
@@ -158,7 +159,7 @@ export const ClassroomCard = ({
               <div className="flex flex-col justify-center items-center">
                 <BookOpen className="mb-2 h-4 w-4 text-gray-500" />
                 <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  Kitab
+                  {contentLabel}
                 </p>
               </div>
             </div>

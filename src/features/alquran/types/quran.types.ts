@@ -8,6 +8,22 @@ export interface CreateJuzResponse {
   path: string;
 }
 
+export interface ClassJuzCreateResponse {
+  status: number;
+  message: string;
+  data: {
+    id: string;
+    user_id: string;
+    index: number;
+    is_active: boolean;
+    is_done: boolean;
+    created_at: string;
+    updated_at: string;
+  };
+  timestamp: string;
+  path: string;
+}
+
 export interface DataJuz {
   ID: string;
   UserID: string;
@@ -23,7 +39,11 @@ export interface GetJuzResponse {
 
 export interface CardJuzData {
   juz_id: string;
+  class_id?: string;
   juz_index: number;
+  is_active?: boolean;
+  is_done?: boolean;
+  done_at?: string | null;
   total_items: number;
   menghafal: number;
   interval: number;
