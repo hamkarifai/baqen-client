@@ -218,7 +218,7 @@ export const QuranClassroomDetailView = ({
                     juzNumber={juz.juz_index}
                     itemCount={juz.total_items}
                     stats={stats}
-                    onClick={() => navigate("/dashboard/alquran")}
+                    onClick={() => navigate(`/dashboard/kelas/${classroom.id}/juz/${juz.juz_id}?juzIndex=${juz.juz_index}`)}
                   />
                 ))}
               </div>

@@ -81,8 +81,10 @@ export const alquranService = {
 
   async getMyItems(
     type: "quran" | "book" = "quran",
+    classId?: string,
   ): Promise<MyItemsQuranResponse> {
-    const response = await api.get(`/api/v1/my-items?type=${type}`);
+    const classQuery = classId ? `&class_id=${encodeURIComponent(classId)}` : "";
+    const response = await api.get(`/api/v1/my-items?type=${type}${classQuery}`);
     return response.data;
   },
 

@@ -7,11 +7,11 @@ export const useGetMyItems = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getMyItems = async (type: "quran" | "book" = "quran") => {
+  const getMyItems = async (type: "quran" | "book" = "quran", classId?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await alquranService.getMyItems(type);
+      const response = await alquranService.getMyItems(type, classId);
       setData(response);
     } catch (err) {
       const message =
