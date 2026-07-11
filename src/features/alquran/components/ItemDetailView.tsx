@@ -25,6 +25,7 @@ interface ItemDetailViewProps {
   backToJuzDetail: () => void;
   currentPhase?: ActionPhase;
   onPhaseChange: (phase: ActionPhase) => void;
+  onRedirect?: () => void;
 }
 
 export const ItemDetailView = ({
@@ -33,19 +34,23 @@ export const ItemDetailView = ({
   backToJuzDetail,
   currentPhase,
   onPhaseChange,
+  onRedirect,
 }: ItemDetailViewProps) => {
   const phase = currentPhase ?? getInitialPhase(item.status);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<MyItemDetail>(item);
   const itemIdRef = useRef<string>(item.item_id);
   const refreshTimeoutRef = useRef<number | null>(null);
-  
+
   // Modal states
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState({ title: "", message: "" });
-  
+  const [successMessage, setSuccessMessage] = useState({
+    title: "",
+    message: "",
+  });
+
   const {
     activateFsrs,
     loading: activateFsrsLoading,
@@ -57,12 +62,15 @@ export const ItemDetailView = ({
   const statusDisplay = getStatusDisplayByPhase(phase);
   const config = getActionConfig(phase);
 
-  const createdDate = new Date(currentItem.created_at).toLocaleDateString("id-ID", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const createdDate = new Date(currentItem.created_at).toLocaleDateString(
+    "id-ID",
+    {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    },
+  );
 
   const refreshItemData = useCallback(async () => {
     try {
@@ -73,13 +81,14 @@ export const ItemDetailView = ({
 
       const allItems = [...fsrsResponse.data, ...intervalResponse.data];
       const foundItem = allItems.find(
-        (item) => item.item_id === itemIdRef.current
+        (item) => item.item_id === itemIdRef.current,
       );
 
       if (foundItem) {
         setCurrentItem({
           ...foundItem,
-          next_review_at: foundItem.next_review_at ?? currentItem.next_review_at,
+          next_review_at:
+            foundItem.next_review_at ?? currentItem.next_review_at,
           review_count: foundItem.review_count ?? currentItem.review_count,
           interval_days: foundItem.interval_days ?? currentItem.interval_days,
         });
@@ -87,11 +96,15 @@ export const ItemDetailView = ({
     } catch (error) {
       // Error handled silently
     }
-  }, [currentItem.next_review_at, currentItem.review_count, currentItem.interval_days]);
+  }, [
+    currentItem.next_review_at,
+    currentItem.review_count,
+    currentItem.interval_days,
+  ]);
 
   useEffect(() => {
     itemIdRef.current = item.item_id;
-    
+
     // Fetch interval_days on mount if not present
     if (!item.interval_days) {
       void refreshItemData();
@@ -104,7 +117,9 @@ export const ItemDetailView = ({
   }, [item]);
 
   useEffect(() => {
-    const handleReviewComplete = (event: CustomEvent<{ itemId: string; delay?: number }>) => {
+    const handleReviewComplete = (
+      event: CustomEvent<{ itemId: string; delay?: number }>,
+    ) => {
       if (event.detail.itemId === itemIdRef.current) {
         // Clear any pending refresh
         if (refreshTimeoutRef.current) {
@@ -121,7 +136,7 @@ export const ItemDetailView = ({
 
     window.addEventListener(
       "alquran:item-reviewed",
-      handleReviewComplete as EventListener
+      handleReviewComplete as EventListener,
     );
 
     return () => {
@@ -130,7 +145,7 @@ export const ItemDetailView = ({
       }
       window.removeEventListener(
         "alquran:item-reviewed",
-        handleReviewComplete as EventListener
+        handleReviewComplete as EventListener,
       );
     };
   }, [refreshItemData]);
@@ -150,7 +165,9 @@ export const ItemDetailView = ({
       case "interval_end":
       case "terjaga":
       case "graduate":
-        if (config.href) {
+        if (onRedirect) {
+          onRedirect();
+        } else if (config.href) {
           window.location.href = config.href;
         }
         break;
@@ -174,7 +191,12 @@ export const ItemDetailView = ({
     transitionTo("interval_end");
   };
 
-  const handleEditSuccess = (updatedData: { ContentRef: string; NextReviewAt: string | null; ReviewCount: number; IntervalDays: number }) => {
+  const handleEditSuccess = (updatedData: {
+    ContentRef: string;
+    NextReviewAt: string | null;
+    ReviewCount: number;
+    IntervalDays: number;
+  }) => {
     // Update currentItem directly with API response data
     setCurrentItem((prev) => {
       const newItem = {
