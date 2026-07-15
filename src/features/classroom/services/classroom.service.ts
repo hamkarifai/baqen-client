@@ -7,6 +7,7 @@ import type {
   JoinClassPayload,
   PendingGraduation,
   RemoveBookFromClassResponse,
+  StudentProgress,
   UpdateClassPayload,
 } from "../types";
 import { api } from "@/services/api";
@@ -155,5 +156,11 @@ export const classroomService = {
       `/api/v1/classes/${classId}/graduations/${itemId}/reject`,
     );
     return response.data;
+  },
+
+  // GET STUDENT PROGRESS (TEACHER - QURAN CLASS)
+  getStudentProgress: async (classId: string): Promise<StudentProgress[]> => {
+    const response = await api.get(`/api/v1/classes/${classId}/progress`);
+    return response.data.data;
   },
 };

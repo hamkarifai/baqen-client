@@ -124,3 +124,35 @@ export type GraduationActionResponse = {
   timestamp: string;
   path: string;
 };
+
+// STUDENT PROGRESS (TEACHER - QURAN CLASS)
+
+export type StudentProgressItem = {
+  item_id: string;
+  content_ref: string;
+  status:
+    | "start"
+    | "menghafal"
+    | "interval"
+    | "fsrs_active"
+    | "pending_graduate"
+    | "graduate"
+    | "inactive";
+  created_at: string;
+};
+
+export type StudentProgress = {
+  user_id: string;
+  email: string;
+  full_name: string;
+  total_items: number;
+  start: number;
+  menghafal: number;
+  interval: number;
+  fsrs_active: number;
+  pending_graduate: number;
+  graduate: number;
+  inactive: number;
+  progress_pct: number;
+  items: StudentProgressItem[];
+};

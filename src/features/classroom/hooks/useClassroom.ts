@@ -133,6 +133,15 @@ export const useGetPendingGraduations = (classId: string) => {
   });
 };
 
+// Hook to fetch student progress for Quran class (teacher)
+export const useGetStudentProgress = (classId: string) => {
+  return useQuery({
+    queryKey: ["student-progress", classId],
+    queryFn: () => classroomService.getStudentProgress(classId),
+    enabled: !!classId,
+  });
+};
+
 // Hook to approve graduation
 export const useApproveGraduation = () => {
   const queryClient = useQueryClient();
