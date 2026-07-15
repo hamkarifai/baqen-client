@@ -71,10 +71,14 @@ export const ConfirmModal = ({
       >
         <div className={`flex items-center gap-3 ${styles.iconColor}`}>
           {Icon && <Icon className="w-5 h-5 sm:w-6 sm:h-6" />}
-          <h3 className="font-serif font-bold text-base sm:text-lg text-white">{title}</h3>
+          <h3 className="font-serif font-bold text-base sm:text-lg text-white">
+            {title}
+          </h3>
         </div>
 
-        <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{message}</p>
+        <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
+          {message}
+        </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
           <button
@@ -92,6 +96,6 @@ export const ConfirmModal = ({
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };

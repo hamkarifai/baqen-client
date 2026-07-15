@@ -123,3 +123,42 @@ export const useRemoveBookFromClass = () => {
     },
   });
 };
+
+// Hook to fetch pending graduations
+export const useGetPendingGraduations = (classId: string) => {
+  return useQuery({
+    queryKey: ["pending-graduations", classId],
+    queryFn: () => classroomService.getPendingGraduations(classId),
+    enabled: !!classId,
+  });
+};
+
+// Hook to approve graduation
+export const useApproveGraduation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: { classId: string; itemId: string }) =>
+      classroomService.approveGraduation(payload.classId, payload.itemId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["pending-graduations", variables.classId],
+      });
+    },
+  });
+};
+
+// Hook to reject graduation
+export const useRejectGraduation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: { classId: string; itemId: string }) =>
+      classroomService.rejectGraduation(payload.classId, payload.itemId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["pending-graduations", variables.classId],
+      });
+    },
+  });
+};

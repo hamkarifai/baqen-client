@@ -3,7 +3,9 @@ import type {
   ClassMember,
   CreateClassPayload,
   GetClassBook,
+  GraduationActionResponse,
   JoinClassPayload,
+  PendingGraduation,
   RemoveBookFromClassResponse,
   UpdateClassPayload,
 } from "../types";
@@ -121,5 +123,37 @@ export const classroomService = {
       `/api/v1/classes/${classId}/books/${bookId}`,
     );
     return response.data.data;
+  },
+
+  // GET PENDING GRADUATIONS (TEACHER)
+  getPendingGraduations: async (
+    classId: string,
+  ): Promise<PendingGraduation[]> => {
+    const response = await api.get(
+      `/api/v1/classes/${classId}/graduations/pending`,
+    );
+    return response.data.data;
+  },
+
+  // APPROVE GRADUATION (TEACHER)
+  approveGraduation: async (
+    classId: string,
+    itemId: string,
+  ): Promise<GraduationActionResponse> => {
+    const response = await api.post(
+      `/api/v1/classes/${classId}/graduations/${itemId}/approve`,
+    );
+    return response.data;
+  },
+
+  // REJECT GRADUATION (TEACHER)
+  rejectGraduation: async (
+    classId: string,
+    itemId: string,
+  ): Promise<GraduationActionResponse> => {
+    const response = await api.post(
+      `/api/v1/classes/${classId}/graduations/${itemId}/reject`,
+    );
+    return response.data;
   },
 };

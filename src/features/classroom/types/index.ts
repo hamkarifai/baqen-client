@@ -104,3 +104,23 @@ export type RemoveBookFromClassResponse = {
   timestamp: string;
   path: string;
 };
+
+// GRADUATION
+
+export type PendingGraduation = {
+  item_id: string;
+  content_ref: string;
+  student_id: string;
+  student_email: string;
+  student_name: string;
+  created_at: string;
+  stability: string;
+  last_interval_days: number;
+};
+
+export type GraduationActionResponse = {
+  status: number;
+  message: string;
+  timestamp: string;
+  path: string;
+};
