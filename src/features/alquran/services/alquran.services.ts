@@ -102,6 +102,13 @@ export const alquranService = {
     return response.data;
   },
 
+  async getClassDaily(classId: string): Promise<DailyTasksResponse> {
+    const response = await api.get(
+      `/api/v1/class-daily?class_id=${encodeURIComponent(classId)}&group=juz`,
+    );
+    return response.data.data;
+  },
+
   async reviewInterval(
     itemId: string,
     payload: ReviewIntervalPayload,

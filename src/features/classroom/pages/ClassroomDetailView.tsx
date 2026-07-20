@@ -34,7 +34,7 @@ import {
 import { AddBookToClassSection } from "../components/dashboard/AddBookToClassSection";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 
-export const ZClassroomDetailView = () => {
+export const ClassroomDetailView = () => {
   const navigate = useNavigate();
   const { classroomId } = useParams<{ classroomId: string }>();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
