@@ -9,6 +9,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useGetMyItems } from "@/features/alquran/hooks/useGetMyItems";
 import { useItemsByStatus } from "@/features/alquran/hooks/useItemsByStatus";
+import { useGetJuz } from "@/features/alquran/hooks/useGetJuz";
 import { useJuzToggle } from "@/features/alquran/hooks/useJuzToggle";
 import { useUserProgress } from "@/features/alquran/hooks/useUserProgress";
 import { HafalanKosong } from "@/components/ui/HafalanKosong";
@@ -22,6 +23,7 @@ interface JuzDetailViewProps {
   juzIndex: number;
   backToDashboard: () => void;
   onItemClick: (item: MyItemDetail) => void;
+  classId?: string;
 }
 
 export const JuzDetailView = ({
@@ -29,22 +31,31 @@ export const JuzDetailView = ({
   juzIndex,
   backToDashboard,
   onItemClick,
+  classId,
 }: JuzDetailViewProps) => {
   const { data, loading, error, getMyItems } = useGetMyItems();
+  const { data: juzList } = useGetJuz();
   const { data: fsrsData, refetch: refetchFsrs } = useItemsByStatus({
     status: "fsrs_active",
+    classId,
   });
   const { data: intervalData, refetch: refetchInterval } = useItemsByStatus({
     status: "interval",
+    classId,
   });
   const { activateJuz, deactivateJuz, loading: toggleLoading } = useJuzToggle();
   const { completedJuz, toggleJuzCompleted } = useUserProgress();
 
+  const isClassJuz = useMemo(() => {
+    if (classId) return false;
+    return juzList?.data?.some((j) => j.juz_id === juzId && j.class_id) || false;
+  }, [classId, juzList, juzId]);
+
   useEffect(() => {
-    getMyItems("quran");
+    getMyItems("quran", classId);
     refetchFsrs();
     refetchInterval();
-  }, []);
+  }, [classId]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
@@ -84,18 +95,22 @@ export const JuzDetailView = ({
     const group = data.data.groups.find((g) => g.juz_id === juzId);
     if (!group) return null;
 
-    // Merge next_review_at dari statusData
+    const items = isClassJuz
+      ? []
+      : group.items.map((item) => ({
+          ...item,
+          next_review_at: nextReviewMap[item.item_id] ?? item.next_review_at,
+        }));
+
     return {
       ...group,
-      items: group.items.map((item) => ({
-        ...item,
-        next_review_at: nextReviewMap[item.item_id] ?? item.next_review_at,
-      })),
+      items,
+      item_count: items.length,
     };
-  }, [data, juzId, nextReviewMap]);
+  }, [data, juzId, nextReviewMap, isClassJuz]);
 
   const handleSaveHafalan = () => {
-    getMyItems("quran");
+    getMyItems("quran", classId);
     refetchFsrs();
     refetchInterval();
   };
@@ -104,7 +119,7 @@ export const JuzDetailView = ({
     try {
       await activateJuz(juzIndex);
       setIsJuzActive(true);
-      getMyItems("quran");
+      getMyItems("quran", classId);
     } catch (error) {
       console.error("Gagal mengaktifkan Juz");
     }
@@ -114,7 +129,7 @@ export const JuzDetailView = ({
     try {
       await deactivateJuz(juzIndex);
       setIsJuzActive(false);
-      getMyItems("quran");
+      getMyItems("quran", classId);
     } catch (error) {
       console.error("Gagal menonaktifkan Juz");
     }

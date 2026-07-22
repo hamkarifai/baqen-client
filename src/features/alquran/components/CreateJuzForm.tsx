@@ -6,12 +6,20 @@ import { ErrorMessage } from "@/components/ui/ErrorMessage";
 interface CreateJuzFormProps {
   onClose: () => void;
   onSuccess?: () => void;
+  classId?: string;
 }
 
 
-export const CreateJuzForm = ({ onClose, onSuccess }: CreateJuzFormProps) => {
-  const { createJuz, loading, data, error } = useCreateJuz();
+import { useCreateClassJuz } from "@/features/alquran/hooks/useClassJuz";
+
+export const CreateJuzForm = ({ onClose, onSuccess, classId }: CreateJuzFormProps) => {
+  const { createJuz, loading: personalLoading, data: personalData, error: personalError } = useCreateJuz();
+  const { createClassJuz, loading: classLoading, data: classData, error: classError } = useCreateClassJuz();
   const [selectedJuz, setSelectedJuz] = useState("");
+
+  const loading = classId ? classLoading : personalLoading;
+  const data = classId ? classData : personalData;
+  const error = classId ? classError : personalError;
 
   const handleJuzChange = (juz: string) => {
     setSelectedJuz(juz);
@@ -19,9 +27,20 @@ export const CreateJuzForm = ({ onClose, onSuccess }: CreateJuzFormProps) => {
 
   const handleSubmit = async () => {
     if (!selectedJuz) return;
-    await createJuz(Number(selectedJuz));
+    if (classId) {
+      await createClassJuz(Number(selectedJuz), classId);
+    } else {
+      await createJuz(Number(selectedJuz));
+    }
     onSuccess?.();
   };
+
+  const selectedJuzLabel = (() => {
+    const juzData = data?.data as
+      | { index?: number; Index?: number }
+      | undefined;
+    return juzData?.index ?? juzData?.Index ?? selectedJuz;
+  })();
 
   // SUCCESS STATE
   if (data) {
@@ -42,7 +61,7 @@ export const CreateJuzForm = ({ onClose, onSuccess }: CreateJuzFormProps) => {
             <p className="text-gray-400 mb-8">
               Juz{" "}
               <span className="text-emerald-400 font-bold">
-                {data?.data.Index}
+                {selectedJuzLabel}
               </span>{" "}
               berhasil ditambahkan.
               <br />

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { alquranService } from "@/features/alquran/services/alquran.services";
 import { useItemsByStatus } from "@/features/alquran/hooks/useItemsByStatus";
+import { useGetJuz } from "@/features/alquran/hooks/useGetJuz";
 import { HafalanCard } from "@/components/ui/HafalanCard";
 import { HafalanKosong } from "@/components/ui/HafalanKosong";
 import {
@@ -97,11 +98,14 @@ export const StatusItemsView = () => {
   const [loading, setLoading] = useState(true);
   const [juzData, setJuzData] = useState<QuranGroup | null>(null);
 
+  const { data: juzList } = useGetJuz();
+  const isClassJuz = juzList?.data?.some((j) => j.juz_id === juzId && j.class_id) || false;
+
   const { data: fsrsData } = useItemsByStatus({ status: "fsrs_active" });
   const { data: intervalData } = useItemsByStatus({ status: "interval" });
 
   useEffect(() => {
-    if (!status || !juzId) return;
+    if (!status || !juzId || isClassJuz) return;
 
     const fetchJuzItems = async () => {
       setLoading(true);

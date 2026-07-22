@@ -15,7 +15,6 @@ import {
   LibraryBig,
   Search,
   Sparkles,
-  Users,
   Activity,
   AlertCircle,
   Eye,

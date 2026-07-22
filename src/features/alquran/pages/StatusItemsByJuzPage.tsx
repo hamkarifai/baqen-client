@@ -81,6 +81,7 @@ export const StatusItemsByJuzPage = () => {
   const { status } = useParams<{ status: ItemStatus }>();
   const [loading, setLoading] = useState(true);
   const [groups, setGroups] = useState<QuranGroup[]>([]);
+  const [personalJuzIds, setPersonalJuzIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!status) return;
@@ -88,11 +89,18 @@ export const StatusItemsByJuzPage = () => {
     const fetchItems = async () => {
       setLoading(true);
       try {
+        const juzResponse = await alquranService.getJuz();
+        const personalIds = new Set(
+          juzResponse.data.filter((j) => !j.class_id).map((j) => j.juz_id),
+        );
+        setPersonalJuzIds(personalIds);
+
         const response: MyItemsQuranResponse =
           await alquranService.getMyItems("quran");
 
         // Filter groups that have items with the selected status
         const filteredGroups = response.data.groups
+          .filter((group) => personalIds.has(group.juz_id))
           .map((group) => ({
             ...group,
             items: group.items.filter((item) => item.status === status),

@@ -31,6 +31,7 @@ import {
   type ActionPhase,
 } from "@/features/alquran/components/ItemDetailView";
 import BackgroundAmbience from "../components/shared/BackgroundAmbience";
+import { useAuthStore } from "@/features/auth/stores/auth.store";
 
 // Types
 import type { MyItemDetail } from "@/features/alquran/types/quran.types";
@@ -53,6 +54,9 @@ export const QuranClassJuzDetailView = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [studentFilter, setStudentFilter] = useState("");
 
+  const userRole = useAuthStore((state) => state.user?.role);
+  const isTeacher = userRole === "teacher";
+
   // Fetch classroom metadata
   const { data: teacherClasses } = useMyClassesTeacher();
   const { data: studentClasses } = useMyJoinedClass();
@@ -69,9 +73,11 @@ export const QuranClassJuzDetailView = () => {
   const { data, loading, error, getMyItems } = useGetMyItems();
   const { data: fsrsData, refetch: refetchFsrs } = useItemsByStatus({
     status: "fsrs_active",
+    classId: classroomId || undefined,
   });
   const { data: intervalData, refetch: refetchInterval } = useItemsByStatus({
     status: "interval",
+    classId: classroomId || undefined,
   });
   const {
     data: studentProgress,
@@ -79,20 +85,20 @@ export const QuranClassJuzDetailView = () => {
     isError: progressIsError,
     error: progressError,
     refetch: refetchProgress,
-  } = useGetStudentProgress(classroomId || "");
+  } = useGetStudentProgress(isTeacher ? (classroomId || "") : "");
 
   const fetchClassJuzItems = () => {
     if (classroomId) {
       getMyItems("quran", classroomId);
       refetchFsrs();
       refetchInterval();
-      refetchProgress();
+      if (isTeacher) refetchProgress();
     }
   };
 
   useEffect(() => {
-    fetchClassJuzItems();
-  }, [classroomId]);
+    void fetchClassJuzItems();
+  }, [classroomId, isTeacher]);
 
   const nextReviewMap = useMemo(() => {
     const map: Record<string, string | undefined> = {};
@@ -224,6 +230,7 @@ export const QuranClassJuzDetailView = () => {
                 handlePhaseChange(activeItem.item_id, phase)
               }
               onRedirect={() => navigate(`/dashboard/kelas/${classroomId}`)}
+              classId={classroomId || undefined}
             />
           </div>
         ) : (
@@ -270,9 +277,11 @@ export const QuranClassJuzDetailView = () => {
               </div>
             </div>
 
-            {/* Progress Overview */}
-            <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] backdrop-blur-md p-5 md:p-6 shadow-xl">
-              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+            {isTeacher && (
+              <>
+                {/* Progress Overview */}
+                <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] backdrop-blur-md p-5 md:p-6 shadow-xl">
+                  <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-400">
                     <Users className="h-3.5 w-3.5" />
@@ -511,6 +520,8 @@ export const QuranClassJuzDetailView = () => {
                 )}
               </div>
             </section>
+          </>
+        )}
 
             {/* Content Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

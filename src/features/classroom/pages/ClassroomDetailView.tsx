@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import BackgroundAmbience from "../components/shared/BackgroundAmbience";
 import MobileSidebarOverlay from "../components/navigation/MobileSidebarOverlay";
 import { QuranClassroomDetailView } from "./QuranClassroomDetailView";
+import { StudentQuranClassroomDetailView } from "./StudentQuranClassroomDetailView";
 import {
   BookCard,
   type BookCardProps,
@@ -95,13 +96,23 @@ export const ClassroomDetailView = () => {
   }
 
   if (classroom.type === "quran") {
-    return (
-      <QuranClassroomDetailView
-        classroom={classroom}
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
-    );
+    if (isTeacher) {
+      return (
+        <QuranClassroomDetailView
+          classroom={classroom}
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      );
+    } else {
+      return (
+        <StudentQuranClassroomDetailView
+          classroom={classroom}
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+      );
+    }
   }
 
   const toneIndex = classroom.id.charCodeAt(0) % tones.length;

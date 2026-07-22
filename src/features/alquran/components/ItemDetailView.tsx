@@ -26,6 +26,7 @@ interface ItemDetailViewProps {
   currentPhase?: ActionPhase;
   onPhaseChange: (phase: ActionPhase) => void;
   onRedirect?: () => void;
+  classId?: string;
 }
 
 export const ItemDetailView = ({
@@ -35,6 +36,7 @@ export const ItemDetailView = ({
   currentPhase,
   onPhaseChange,
   onRedirect,
+  classId,
 }: ItemDetailViewProps) => {
   const phase = currentPhase ?? getInitialPhase(item.status);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,8 +77,8 @@ export const ItemDetailView = ({
   const refreshItemData = useCallback(async () => {
     try {
       const [fsrsResponse, intervalResponse] = await Promise.all([
-        alquranService.getItemsByStatus("fsrs_active"),
-        alquranService.getItemsByStatus("interval"),
+        alquranService.getItemsByStatus("fsrs_active", classId),
+        alquranService.getItemsByStatus("interval", classId),
       ]);
 
       const allItems = [...fsrsResponse.data, ...intervalResponse.data];

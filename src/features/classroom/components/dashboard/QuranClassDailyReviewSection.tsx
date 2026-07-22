@@ -1,18 +1,10 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
-import {
-  Flame,
-  Star,
-  Clock,
-  BookOpen,
-  Play,
-  CheckCircle2,
-} from "lucide-react";
-import { useDailyReviewEstimate, type JuzReviewEstimate } from "@/features/alquran/hooks/useDailyReviewEstimate";
-import { useGetJuz } from "@/features/alquran/hooks/useGetJuz";
-import type { DailyTask, DailyTaskGroup, MyItemDetail } from "@/features/alquran/types/quran.types";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { BookOpen, CheckCircle2, Clock, Flame, Play, Star } from "lucide-react";
+import { alquranService } from "@/features/alquran/services/alquran.services";
 import { DailyReviewFlashcardModal } from "@/features/alquran/components/DailyReviewFlashcardModal";
 import { parseContentRef } from "@/features/alquran/components/item-detail/ItemDetailView.config";
-import { alquranService } from "../services/alquran.services";
+import { useDailyReviewEstimate, type JuzReviewEstimate } from "@/features/alquran/hooks/useDailyReviewEstimate";
+import type { DailyTask, DailyTaskGroup, MyItemDetail } from "@/features/alquran/types/quran.types";
 
 const formatEstimate = (seconds: number): string => {
   if (seconds <= 0) return "—";
@@ -25,15 +17,9 @@ const getTodayDateKey = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 };
 
-export const DailyReviewSection = ({ classId }: { classId?: string }) => {
-  const { data: juzData } = useGetJuz();
+export const QuranClassDailyReviewSection = ({ classId }: { classId: string }) => {
   const { loading, juzEstimates, refetch: refetchEstimates } =
     useDailyReviewEstimate(classId);
-
-  const personalJuzIds = useMemo(() => {
-    if (!juzData?.data) return new Set<string>();
-    return new Set(juzData.data.filter((j) => !j.class_id).map((j) => j.juz_id));
-  }, [juzData]);
 
   const [itemStatusMap, setItemStatusMap] = useState<Map<string, string>>(new Map());
   const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
@@ -46,7 +32,6 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
       const response = await alquranService.getMyItems("quran", classId);
       const map = new Map<string, string>();
       response.data.groups.forEach((group) => {
-        if (!personalJuzIds.has(group.juz_id)) return;
         group.items.forEach((item: MyItemDetail) => {
           map.set(item.item_id, item.status);
         });
@@ -55,13 +40,11 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
     } catch {
       // silent
     }
-  }, [classId, personalJuzIds]);
+  }, [classId]);
 
   const refreshDailyState = useCallback(async () => {
     try {
-      const response: DailyTaskGroup[] = classId
-        ? await alquranService.getClassDaily(classId)
-        : await alquranService.getDaily("quran");
+      const response: DailyTaskGroup[] = await alquranService.getClassDaily(classId);
       const completed = new Set(
         response
           .flatMap((group) => group.items)
@@ -83,15 +66,12 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
 
     init();
 
-    const onGenerated = () => init();
     const onVisible = () => {
       if (document.visibilityState === "visible") init();
     };
 
-    window.addEventListener("alquran:daily-generated", onGenerated);
     document.addEventListener("visibilitychange", onVisible);
     return () => {
-      window.removeEventListener("alquran:daily-generated", onGenerated);
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, [refetchEstimates, refreshStatuses, refreshDailyState]);
@@ -106,16 +86,10 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
         );
         return { ...juz, items, itemCount: items.length, totalEstimatedSeconds };
       })
-      .filter((juz) => juz.itemCount > 0 && personalJuzIds.has(juz.juz_id));
-  }, [juzEstimates, reviewedIds, personalJuzIds]);
+      .filter((juz) => juz.itemCount > 0);
+  }, [juzEstimates, reviewedIds]);
 
-  const totalItems = filteredJuzGroups.reduce((s, j) => s + j.itemCount, 0);
-
-  const openJuz = (juz: JuzReviewEstimate, startIndex = 0) => {
-    setActiveJuz(juz);
-    setQueueIndex(startIndex);
-    setIsFlashcardOpen(true);
-  };
+  const totalItems = filteredJuzGroups.reduce((sum, juz) => sum + juz.itemCount, 0);
 
   const currentTask: DailyTask | null =
     activeJuz && activeJuz.items[queueIndex]
@@ -132,6 +106,12 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
             "",
         }
       : null;
+
+  const openJuz = (juz: JuzReviewEstimate, startIndex = 0) => {
+    setActiveJuz(juz);
+    setQueueIndex(startIndex);
+    setIsFlashcardOpen(true);
+  };
 
   const handleReviewed = async () => {
     if (!activeJuz) return;
@@ -185,12 +165,10 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
   };
 
   return (
-    <div className="mb-8 animate-fadeIn relative">
+    <section className="relative mb-8 animate-fadeIn">
       <div className="absolute -inset-1 blur-2xl bg-linear-to-r from-emerald-500/20 via-teal-500/20 to-blue-500/20 rounded-3xl opacity-50 pointer-events-none" />
-
       <div className="relative bg-linear-to-br from-[#1A222C] to-[#0F141A] rounded-2xl border border-emerald-500/30 overflow-hidden shadow-2xl shadow-emerald-900/20">
         <div className="h-1 w-full bg-linear-to-r from-emerald-400 via-teal-400 to-emerald-400" />
-
         <div className="p-6 md:p-8">
           <div className="flex flex-col md:flex-row gap-4 mb-8 border-b border-white/5 pb-6">
             <div className="w-16 h-16 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 shrink-0 transform -rotate-3">
@@ -198,26 +176,22 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
             </div>
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wide uppercase mb-2">
-                <Star className="w-3.5 h-3.5" /> Prioritas Utama
+                <Star className="w-3.5 h-3.5" /> Review Kelas
               </div>
               <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
-                Target Review Hari Ini
+                Target Review Kelas Hari Ini
               </h2>
               <p className="text-gray-400 text-sm md:text-base max-w-2xl">
                 Ada{" "}
                 <strong className="text-emerald-400">{totalItems} item</strong>{" "}
                 di{" "}
                 <strong className="text-emerald-400">{filteredJuzGroups.length} Juz</strong>{" "}
-                yang menunggu untuk direview.
+                yang menunggu untuk direview di kelas ini.
               </p>
             </div>
           </div>
 
-          {loading && (
-            <p className="text-sm text-gray-400 animate-pulse">
-              Memuat target harian...
-            </p>
-          )}
+          {loading && <p className="text-sm text-gray-400 animate-pulse">Memuat target harian...</p>}
 
           {!loading && filteredJuzGroups.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -225,7 +199,7 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
                 <CheckCircle2 className="w-8 h-8 text-emerald-400" />
               </div>
               <p className="text-white font-bold mb-1">Semua sudah direview!</p>
-              <p className="text-gray-400 text-sm">Tidak ada review tersisa hari ini.</p>
+              <p className="text-gray-400 text-sm">Tidak ada review kelas tersisa hari ini.</p>
             </div>
           )}
 
@@ -237,7 +211,6 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="absolute inset-0 bg-linear-to-br from-emerald-500/0 to-teal-500/0 group-hover:from-emerald-500/10 group-hover:to-teal-500/10 transition-all duration-500 pointer-events-none" />
-
                 <div className="relative z-10 p-5">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
@@ -317,6 +290,6 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
           onReviewed={handleReviewed}
         />
       )}
-    </div>
+    </section>
   );
 };

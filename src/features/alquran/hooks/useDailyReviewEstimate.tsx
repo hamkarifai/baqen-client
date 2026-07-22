@@ -27,7 +27,7 @@ export interface JuzReviewEstimate {
   totalEstimatedMinutes: number;
 }
 
-export const useDailyReviewEstimate = () => {
+export const useDailyReviewEstimate = (classId?: string) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [juzEstimates, setJuzEstimates] = useState<JuzReviewEstimate[]>([]);
@@ -46,7 +46,9 @@ export const useDailyReviewEstimate = () => {
 
       // Use the daily endpoint — it already filters items due today,
       // includes the correct status for each item, and provides juz_index.
-      const dailyGroups: DailyTaskGroup[] = await alquranService.getDaily("quran");
+      const dailyGroups: DailyTaskGroup[] = classId
+        ? await alquranService.getClassDaily(classId)
+        : await alquranService.getDaily("quran");
       const dailyTasks = dailyGroups.flatMap((group) => group.items);
 
       // Only include quran items that are pending review (not yet done)
@@ -72,7 +74,7 @@ export const useDailyReviewEstimate = () => {
       );
 
       // We need juz_id — fetch my-items to get juz_id per juz_index
-      const myItemsResponse = await alquranService.getMyItems("quran");
+      const myItemsResponse = await alquranService.getMyItems("quran", classId);
       const juzIdByIndex = new Map<number, string>();
       myItemsResponse.data.groups.forEach((group) => {
         juzIdByIndex.set(group.juz_index, group.juz_id);
@@ -135,7 +137,7 @@ export const useDailyReviewEstimate = () => {
 
   useEffect(() => {
     void fetchEstimates();
-  }, [fetchEstimates]);
+  }, [fetchEstimates, classId]);
 
   return {
     loading,

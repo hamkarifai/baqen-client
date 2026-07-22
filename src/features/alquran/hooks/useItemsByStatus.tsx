@@ -5,11 +5,13 @@ import axios from "axios";
 
 interface UseItemsByStatusProps {
   status: string;
+  classId?: string;
   autoFetch?: boolean;
 }
 
 export const useItemsByStatus = ({
   status,
+  classId,
   autoFetch = true,
 }: UseItemsByStatusProps) => {
   const [data, setData] = useState<ItemsByStatusResponse | null>(null);
@@ -20,7 +22,7 @@ export const useItemsByStatus = ({
     setLoading(true);
     setError(null);
     try {
-      const response = await alquranService.getItemsByStatus(status);
+      const response = await alquranService.getItemsByStatus(status, classId);
       setData(response);
     } catch (err) {
       const message = axios.isAxiosError(err)
@@ -30,7 +32,7 @@ export const useItemsByStatus = ({
     } finally {
       setLoading(false);
     }
-  }, [status]);
+  }, [status, classId]);
 
   useEffect(() => {
     if (autoFetch) {

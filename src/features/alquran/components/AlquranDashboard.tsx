@@ -100,6 +100,11 @@ export const AlquranDashboard = ({
   // Fetch status counts from my-items API
   useEffect(() => {
     const fetchStatusCounts = async () => {
+      if (!data?.data) return;
+      const personalJuzIds = new Set(
+        data.data.filter((j) => !j.class_id).map((j) => j.juz_id),
+      );
+
       try {
         const response = await alquranService.getMyItems("quran");
         const counts = {
@@ -110,6 +115,7 @@ export const AlquranDashboard = ({
         };
 
         response.data.groups.forEach((group) => {
+          if (!personalJuzIds.has(group.juz_id)) return;
           group.items.forEach((item) => {
             if (item.status === "menghafal") counts.menghafal++;
             else if (item.status === "interval") counts.interval++;
@@ -125,7 +131,7 @@ export const AlquranDashboard = ({
     };
 
     fetchStatusCounts();
-  }, [refreshSignal]);
+  }, [data, refreshSignal]);
 
   // Listen for completed juz updates from JuzDetailView
   useEffect(() => {
@@ -180,15 +186,17 @@ export const AlquranDashboard = ({
       };
     }
 
+    const personalJuz = data.data.filter((juz) => !juz.class_id);
+
     // Total hafalan dan yang sudah selesai
-    const totalItems = data.data.reduce((sum, juz) => sum + juz.total_items, 0);
-    const completedItems = data.data.reduce(
+    const totalItems = personalJuz.reduce((sum, juz) => sum + juz.total_items, 0);
+    const completedItems = personalJuz.reduce(
       (sum, juz) => sum + juz.graduate,
       0,
     );
 
     // Juz yang sudah tamat 100% (dari API) + yang di-mark manual oleh user
-    const completedJuzFromApi = data.data.filter(
+    const completedJuzFromApi = personalJuz.filter(
       (juz) => juz.total_items > 0 && juz.graduate === juz.total_items,
     ).length;
 
@@ -255,7 +263,7 @@ export const AlquranDashboard = ({
 
           {/* Juz Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {data?.data.map((juz: CardJuzData) => (
+            {data?.data.filter((juz: CardJuzData) => !juz.class_id).map((juz: CardJuzData) => (
               <JuzCard
                 key={juz.juz_id}
                 juzNumber={juz.juz_index}
