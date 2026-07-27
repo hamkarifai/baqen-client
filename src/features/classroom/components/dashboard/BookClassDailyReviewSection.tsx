@@ -1,18 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Play,
-  Flame,
-  Star,
-  BookOpen,
-  CheckCircle2,
-  Clock,
-} from "lucide-react";
+import { Play, Flame, Star, BookOpen, CheckCircle2, Clock } from "lucide-react";
 import { alquranService } from "@/features/alquran/services/alquran.services";
 import type { DailyTask } from "@/features/alquran/types/quran.types";
 import { BookDailyReviewFlashcardModal } from "@/features/personal/components/BookDailyReviewFlashcardModal";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 import type { BookDailyTask } from "@/features/personal/types/personal.types";
-
 
 const formatEstimate = (seconds: number): string => {
   if (seconds <= 0) return "—";
@@ -39,9 +31,8 @@ export const BookClassDailyReviewSection = ({
 
   const refreshDailyState = useCallback(async () => {
     try {
-      const response: DailyTask[] = await alquranService.getClassDailyBook(
-        classId,
-      );
+      const response: DailyTask[] =
+        await alquranService.getClassDailyBook(classId);
       const completed = new Set(
         response
           .filter((t) => t.state === "completed" || t.state === "done")
@@ -109,9 +100,8 @@ export const BookClassDailyReviewSection = ({
 
   const currentTask: BookDailyTask | null =
     activeBook && groups.find((g) => g.book_title === activeBook)
-      ? groups
-          .find((g) => g.book_title === activeBook)!
-          .items[queueIndex] ?? null
+      ? (groups.find((g) => g.book_title === activeBook)!.items[queueIndex] ??
+        null)
       : null;
 
   const openGroup = (bookTitle: string, startIndex = 0) => {
@@ -192,7 +182,9 @@ export const BookClassDailyReviewSection = ({
                 Ada{" "}
                 <strong className="text-purple-400">{totalItems} item</strong>{" "}
                 di{" "}
-                <strong className="text-purple-400">{groups.length} buku</strong>{" "}
+                <strong className="text-purple-400">
+                  {groups.length} buku
+                </strong>{" "}
                 yang menunggu untuk direview di kelas ini.
               </p>
             </div>
@@ -209,9 +201,7 @@ export const BookClassDailyReviewSection = ({
               <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-4">
                 <CheckCircle2 className="w-8 h-8 text-purple-400" />
               </div>
-              <p className="text-white font-bold mb-1">
-                Semua sudah direview!
-              </p>
+              <p className="text-white font-bold mb-1">Semua sudah direview!</p>
               <p className="text-gray-400 text-sm">
                 Tidak ada review kelas tersisa hari ini.
               </p>
@@ -236,8 +226,8 @@ export const BookClassDailyReviewSection = ({
                         {group.book_title}
                       </h3>
                       <p className="text-gray-500 text-xs mt-1">
-                        {isTeacher ? "Guru" : "Murid"} •{" "}
-                        {group.items.length} item siap review
+                        {isTeacher ? "Guru" : "Murid"} • {group.items.length}{" "}
+                        item siap review
                       </p>
                     </div>
                   </div>
@@ -252,7 +242,9 @@ export const BookClassDailyReviewSection = ({
                       </div>
                       <div className="flex items-center gap-1.5 text-gray-500 text-xs">
                         <Clock className="w-3.5 h-3.5 shrink-0" />
-                        <span>~{formatEstimate(group.totalEstimatedSeconds)}</span>
+                        <span>
+                          ~{formatEstimate(group.totalEstimatedSeconds)}
+                        </span>
                       </div>
                     </div>
 

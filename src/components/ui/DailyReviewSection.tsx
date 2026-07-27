@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { Flame, Star, Clock, BookOpen, Play, CheckCircle2 } from "lucide-react";
 import { useMyJoinedClass } from "@/features/classroom/hooks/useClassroom";
 import { alquranService } from "@/features/alquran/services/alquran.services";
-import type { DailyTask, MyItemDetail } from "@/features/alquran/types/quran.types";
+import type {
+  DailyTask,
+  MyItemDetail,
+} from "@/features/alquran/types/quran.types";
 import { DailyReviewFlashcardModal } from "@/features/alquran/components/DailyReviewFlashcardModal";
 import { parseContentRef } from "@/features/alquran/components/item-detail/ItemDetailView.config";
 import { BookDailyReviewFlashcardModal } from "@/features/personal/components/BookDailyReviewFlashcardModal";
@@ -71,11 +74,15 @@ export const DailyReviewSection = () => {
 
   const [loading, setLoading] = useState(false);
   const [classGroups, setClassGroups] = useState<ClassReviewGroup[]>([]);
-  const [itemStatusMap, setItemStatusMap] = useState<Map<string, string>>(new Map());
+  const [itemStatusMap, setItemStatusMap] = useState<Map<string, string>>(
+    new Map(),
+  );
   const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
 
   // Flashcard queue state
-  const [activeJuz, setActiveJuz] = useState<JuzReviewEstimate | BookReviewEstimate | null>(null);
+  const [activeJuz, setActiveJuz] = useState<
+    JuzReviewEstimate | BookReviewEstimate | null
+  >(null);
   const [activeClassId, setActiveClassId] = useState<string | null>(null);
   const [queueIndex, setQueueIndex] = useState(0);
   const [isFlashcardOpen, setIsFlashcardOpen] = useState(false);
@@ -127,10 +134,15 @@ export const DailyReviewSection = () => {
           });
 
           const dedupedTasks = Array.from(
-            new Map(reviewableTasks.map((task) => [task.item_id, task])).values(),
+            new Map(
+              reviewableTasks.map((task) => [task.item_id, task]),
+            ).values(),
           );
 
-          const myItemsResponse = await alquranService.getMyItems("quran", classroom.id);
+          const myItemsResponse = await alquranService.getMyItems(
+            "quran",
+            classroom.id,
+          );
           const juzIdByIndex = new Map<number, string>();
           myItemsResponse.data.groups.forEach((group) => {
             juzIdByIndex.set(group.juz_index, group.juz_id);
@@ -171,10 +183,12 @@ export const DailyReviewSection = () => {
             estimate.totalEstimatedSeconds += estimatedSecs;
           });
 
-          const juzEstimates = Array.from(juzMap.values()).map((juz) => ({
-            ...juz,
-            totalEstimatedMinutes: Math.ceil(juz.totalEstimatedSeconds / 60),
-          })).sort((a, b) => a.juz_index - b.juz_index);
+          const juzEstimates = Array.from(juzMap.values())
+            .map((juz) => ({
+              ...juz,
+              totalEstimatedMinutes: Math.ceil(juz.totalEstimatedSeconds / 60),
+            }))
+            .sort((a, b) => a.juz_index - b.juz_index);
 
           if (juzEstimates.length > 0) {
             groupsResult.push({
@@ -185,14 +199,19 @@ export const DailyReviewSection = () => {
             });
           }
         } catch (err) {
-          console.error(`Failed to fetch daily review for class ${classroom.name}:`, err);
+          console.error(
+            `Failed to fetch daily review for class ${classroom.name}:`,
+            err,
+          );
         }
       }
 
       // Fetch daily tasks for Book classes
       for (const classroom of bookClasses) {
         try {
-          const dailyBookTasks = await alquranService.getClassDailyBook(classroom.id);
+          const dailyBookTasks = await alquranService.getClassDailyBook(
+            classroom.id,
+          );
 
           dailyBookTasks.forEach((t) => {
             if (t.state === "completed" || t.state === "done") {
@@ -214,7 +233,9 @@ export const DailyReviewSection = () => {
           });
 
           const dedupedTasks = Array.from(
-            new Map(reviewableTasks.map((task) => [task.item_id, task])).values(),
+            new Map(
+              reviewableTasks.map((task) => [task.item_id, task]),
+            ).values(),
           );
 
           // Group by book title
@@ -260,7 +281,10 @@ export const DailyReviewSection = () => {
             });
           }
         } catch (err) {
-          console.error(`Failed to fetch daily book review for class ${classroom.name}:`, err);
+          console.error(
+            `Failed to fetch daily book review for class ${classroom.name}:`,
+            err,
+          );
         }
       }
 
@@ -298,12 +322,19 @@ export const DailyReviewSection = () => {
         if (group.classType === "book") {
           const bookEstimates = (group.bookEstimates ?? [])
             .map((book) => {
-              const items = book.items.filter((item) => !reviewedIds.has(item.item_id));
+              const items = book.items.filter(
+                (item) => !reviewedIds.has(item.item_id),
+              );
               const totalEstimatedSeconds = items.reduce(
                 (s, i) => s + (i.estimatedReviewSeconds || 0),
                 0,
               );
-              return { ...book, items, itemCount: items.length, totalEstimatedSeconds };
+              return {
+                ...book,
+                items,
+                itemCount: items.length,
+                totalEstimatedSeconds,
+              };
             })
             .filter((book) => book.itemCount > 0);
           return { ...group, bookEstimates };
@@ -311,31 +342,48 @@ export const DailyReviewSection = () => {
 
         const juzEstimates = (group.juzEstimates ?? [])
           .map((juz) => {
-            const items = juz.items.filter((item) => !reviewedIds.has(item.item_id));
-            const totalEstimatedSeconds = items.reduce((s, i) => s + (i.estimatedReviewSeconds || 0), 0);
-            return { ...juz, items, itemCount: items.length, totalEstimatedSeconds };
+            const items = juz.items.filter(
+              (item) => !reviewedIds.has(item.item_id),
+            );
+            const totalEstimatedSeconds = items.reduce(
+              (s, i) => s + (i.estimatedReviewSeconds || 0),
+              0,
+            );
+            return {
+              ...juz,
+              items,
+              itemCount: items.length,
+              totalEstimatedSeconds,
+            };
           })
           .filter((juz) => juz.itemCount > 0);
         return { ...group, juzEstimates };
       })
       .filter(
         (group) =>
-          (group.classType === "quran" && (group.juzEstimates?.length ?? 0) > 0) ||
-          (group.classType === "book" && (group.bookEstimates?.length ?? 0) > 0),
+          (group.classType === "quran" &&
+            (group.juzEstimates?.length ?? 0) > 0) ||
+          (group.classType === "book" &&
+            (group.bookEstimates?.length ?? 0) > 0),
       );
   }, [classGroups, reviewedIds]);
 
-  const totalItems = filteredClassGroups.reduce(
-    (sum, group) => {
-      if (group.classType === "book") {
-        return sum + (group.bookEstimates?.reduce((s, b) => s + b.itemCount, 0) ?? 0);
-      }
-      return sum + (group.juzEstimates?.reduce((s, j) => s + j.itemCount, 0) ?? 0);
-    },
-    0,
-  );
+  const totalItems = filteredClassGroups.reduce((sum, group) => {
+    if (group.classType === "book") {
+      return (
+        sum + (group.bookEstimates?.reduce((s, b) => s + b.itemCount, 0) ?? 0)
+      );
+    }
+    return (
+      sum + (group.juzEstimates?.reduce((s, j) => s + j.itemCount, 0) ?? 0)
+    );
+  }, 0);
 
-  const openJuz = (classId: string, juz: JuzReviewEstimate | BookReviewEstimate, startIndex = 0) => {
+  const openJuz = (
+    classId: string,
+    juz: JuzReviewEstimate | BookReviewEstimate,
+    startIndex = 0,
+  ) => {
     setActiveClassId(classId);
     setActiveJuz(juz);
     setQueueIndex(startIndex);
@@ -367,13 +415,19 @@ export const DailyReviewSection = () => {
           task_date: getTodayDateKey(),
           content_ref: activeJuz.items[queueIndex]?.content_ref ?? "",
           status: activeJuz.items[queueIndex]?.status ?? "",
-          book_title: activeJuz.items[queueIndex]?.book_title ?? activeJuz.book_title ?? "",
-          estimated_review_seconds: activeJuz.items[queueIndex]?.estimatedReviewSeconds ?? 0,
+          book_title:
+            activeJuz.items[queueIndex]?.book_title ??
+            activeJuz.book_title ??
+            "",
+          estimated_review_seconds:
+            activeJuz.items[queueIndex]?.estimatedReviewSeconds ?? 0,
         }
       : null;
 
-  const currentTaskForQuran = activeJuz && "juz_index" in activeJuz ? currentQuranTask : null;
-  const currentTaskForBook = activeJuz && "book_title" in activeJuz ? currentBookTask : null;
+  const currentTaskForQuran =
+    activeJuz && "juz_index" in activeJuz ? currentQuranTask : null;
+  const currentTaskForBook =
+    activeJuz && "book_title" in activeJuz ? currentBookTask : null;
 
   const handleReviewed = async () => {
     if (!activeJuz || !activeClassId) return;
@@ -386,10 +440,14 @@ export const DailyReviewSection = () => {
       setReviewedIds(nextReviewed);
     }
 
-    const remaining = activeJuz.items.filter((qi) => !nextReviewed.has(qi.item_id));
+    const remaining = activeJuz.items.filter(
+      (qi) => !nextReviewed.has(qi.item_id),
+    );
 
     if (remaining.length > 0) {
-      const nextIdx = activeJuz.items.findIndex((qi) => qi.item_id === remaining[0].item_id);
+      const nextIdx = activeJuz.items.findIndex(
+        (qi) => qi.item_id === remaining[0].item_id,
+      );
       setQueueIndex(nextIdx >= 0 ? nextIdx : queueIndex + 1);
     } else {
       const currentClassGroup = filteredClassGroups.find(
@@ -397,15 +455,21 @@ export const DailyReviewSection = () => {
       );
 
       if (currentClassGroup) {
-        if (currentClassGroup.classType === "book" && currentClassGroup.bookEstimates) {
+        if (
+          currentClassGroup.classType === "book" &&
+          currentClassGroup.bookEstimates
+        ) {
           // Find current book in the group
           const currentBookIndex = currentClassGroup.bookEstimates.findIndex(
-            (book) => book.book_title === (activeJuz as BookReviewEstimate).book_title,
+            (book) =>
+              book.book_title === (activeJuz as BookReviewEstimate).book_title,
           );
 
           const nextBook = currentClassGroup.bookEstimates
             .slice(currentBookIndex + 1)
-            .find((book) => book.items.some((i) => !nextReviewed.has(i.item_id)));
+            .find((book) =>
+              book.items.some((i) => !nextReviewed.has(i.item_id)),
+            );
 
           if (nextBook) {
             const itemsWithRemaining = nextBook.items.filter(
@@ -429,7 +493,10 @@ export const DailyReviewSection = () => {
 
             if (nextClassGroup) {
               setActiveClassId(nextClassGroup.classId);
-              if (nextClassGroup.classType === "book" && nextClassGroup.bookEstimates) {
+              if (
+                nextClassGroup.classType === "book" &&
+                nextClassGroup.bookEstimates
+              ) {
                 const firstBook = nextClassGroup.bookEstimates[0];
                 const itemsWithRemaining = firstBook.items.filter(
                   (i) => !nextReviewed.has(i.item_id),
@@ -455,12 +522,19 @@ export const DailyReviewSection = () => {
           const nextJuz = currentClassGroup.juzEstimates
             .slice(currentJuzIndex + 1)
             .map((juz) => {
-              const items = juz.items.filter((item) => !nextReviewed.has(item.item_id));
+              const items = juz.items.filter(
+                (item) => !nextReviewed.has(item.item_id),
+              );
               const totalEstimatedSeconds = items.reduce(
                 (sum, item) => sum + (item.estimatedReviewSeconds || 0),
                 0,
               );
-              return { ...juz, items, itemCount: items.length, totalEstimatedSeconds };
+              return {
+                ...juz,
+                items,
+                itemCount: items.length,
+                totalEstimatedSeconds,
+              };
             })
             .find((juz) => juz.itemCount > 0);
 
@@ -550,8 +624,7 @@ export const DailyReviewSection = () => {
                 Daily Review Kelas
               </h2>
               <p className="text-gray-400 text-sm md:text-base max-w-2xl">
-                Ada{" "}
-                <strong className="text-cyan-400">{totalItems} item</strong>{" "}
+                Ada <strong className="text-cyan-400">{totalItems} item</strong>{" "}
                 di kelas Quran yang menunggu untuk direview hari ini.
               </p>
             </div>
@@ -559,7 +632,9 @@ export const DailyReviewSection = () => {
 
           {/* Loading */}
           {loading && classGroups.length === 0 && (
-            <p className="text-sm text-gray-400 animate-pulse">Memuat target harian...</p>
+            <p className="text-sm text-gray-400 animate-pulse">
+              Memuat target harian...
+            </p>
           )}
 
           {/* Empty */}
@@ -568,8 +643,12 @@ export const DailyReviewSection = () => {
               <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-4">
                 <CheckCircle2 className="w-8 h-8 text-cyan-400" />
               </div>
-              <p className="text-white font-bold mb-1">Semua kelas sudah direview!</p>
-              <p className="text-gray-400 text-sm">Tidak ada review tersisa hari ini.</p>
+              <p className="text-white font-bold mb-1">
+                Semua kelas sudah direview!
+              </p>
+              <p className="text-gray-400 text-sm">
+                Tidak ada review tersisa hari ini.
+              </p>
             </div>
           )}
 
@@ -578,11 +657,19 @@ export const DailyReviewSection = () => {
             {filteredClassGroups.map((group) => (
               <div key={group.classId} className="space-y-4">
                 <div className="flex items-center gap-2 border-l-4 border-cyan-500 pl-3">
-                  <h3 className="text-lg font-black text-white">{group.className}</h3>
+                  <h3 className="text-lg font-black text-white">
+                    {group.className}
+                  </h3>
                   <span className="rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 text-[10px] text-cyan-400 font-bold uppercase">
                     {group.classType === "book"
-                      ? group.bookEstimates?.reduce((acc, b) => acc + b.itemCount, 0) ?? 0
-                      : group.juzEstimates?.reduce((acc, j) => acc + j.itemCount, 0) ?? 0}{" "}
+                      ? (group.bookEstimates?.reduce(
+                          (acc, b) => acc + b.itemCount,
+                          0,
+                        ) ?? 0)
+                      : (group.juzEstimates?.reduce(
+                          (acc, j) => acc + j.itemCount,
+                          0,
+                        ) ?? 0)}{" "}
                     Items
                   </span>
                 </div>
@@ -637,7 +724,9 @@ export const DailyReviewSection = () => {
                             <div className="flex flex-col gap-1">
                               <div className="flex items-center gap-1.5 text-gray-500 text-xs">
                                 <Clock className="w-3.5 h-3.5 shrink-0" />
-                                <span>~{formatEstimate(book.totalEstimatedSeconds)}</span>
+                                <span>
+                                  ~{formatEstimate(book.totalEstimatedSeconds)}
+                                </span>
                               </div>
                             </div>
 
@@ -692,7 +781,9 @@ export const DailyReviewSection = () => {
                                     {itemIndex + 1}
                                   </span>
                                   <span className="max-w-[11rem] truncate">
-                                    {parsed?.title || item.content_ref || `Item ${itemIndex + 1}`}
+                                    {parsed?.title ||
+                                      item.content_ref ||
+                                      `Item ${itemIndex + 1}`}
                                   </span>
                                 </span>
                               );
@@ -708,7 +799,9 @@ export const DailyReviewSection = () => {
                             <div className="flex flex-col gap-1">
                               <div className="flex items-center gap-1.5 text-gray-500 text-xs">
                                 <Clock className="w-3.5 h-3.5 shrink-0" />
-                                <span>~{formatEstimate(juz.totalEstimatedSeconds)}</span>
+                                <span>
+                                  ~{formatEstimate(juz.totalEstimatedSeconds)}
+                                </span>
                               </div>
                             </div>
 

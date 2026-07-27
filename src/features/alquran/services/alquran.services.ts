@@ -84,8 +84,12 @@ export const alquranService = {
     type: "quran" | "book" = "quran",
     classId?: string,
   ): Promise<MyItemsQuranResponse> {
-    const classQuery = classId ? `&class_id=${encodeURIComponent(classId)}` : "";
-    const response = await api.get(`/api/v1/my-items?type=${type}${classQuery}`);
+    const classQuery = classId
+      ? `&class_id=${encodeURIComponent(classId)}`
+      : "";
+    const response = await api.get(
+      `/api/v1/my-items?type=${type}${classQuery}`,
+    );
     return response.data;
   },
 
@@ -154,9 +158,16 @@ export const alquranService = {
     return response.data;
   },
 
-  async getItemsByStatus(status: string, classId?: string): Promise<ItemsByStatusResponse> {
-    const classQuery = classId ? `&class_id=${encodeURIComponent(classId)}` : "";
-    const response = await api.get(`/api/v1/items?status=${status}${classQuery}`);
+  async getItemsByStatus(
+    status: string,
+    classId?: string,
+  ): Promise<ItemsByStatusResponse> {
+    const classQuery = classId
+      ? `&class_id=${encodeURIComponent(classId)}`
+      : "";
+    const response = await api.get(
+      `/api/v1/items?status=${status}${classQuery}`,
+    );
     const raw = response.data;
 
     return {
