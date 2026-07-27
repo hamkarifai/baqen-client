@@ -89,6 +89,8 @@ export interface DailyTask {
   juz_index: number;
   status?: string;
   estimated_review_seconds?: number;
+  book_title?: string;
+  image_url?: string;
 }
 
 export interface DailyTaskGroup {

@@ -736,7 +736,6 @@ export const ClassroomBookDetailView = () => {
                         <ModuleCard
                           key={mod.id}
                           module={mod}
-                          bookId={bookId!}
                           onClick={() =>
                             navigate(
                               `/dashboard/pribadi/book/${bookId}/module/${mod.id}`,

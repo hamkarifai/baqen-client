@@ -5,6 +5,7 @@ import type {
   CreateJuzItemPayload,
   CreateJuzItemResponse,
   CreateJuzResponse,
+  DailyTask,
   DailyTasksResponse,
   DailyGenerateResponse,
   GetJuzResponse,
@@ -105,6 +106,13 @@ export const alquranService = {
   async getClassDaily(classId: string): Promise<DailyTasksResponse> {
     const response = await api.get(
       `/api/v1/class-daily?class_id=${encodeURIComponent(classId)}&group=juz`,
+    );
+    return response.data.data;
+  },
+
+  async getClassDailyBook(classId: string): Promise<DailyTask[]> {
+    const response = await api.get(
+      `/api/v1/class-daily-book?class_id=${encodeURIComponent(classId)}`,
     );
     return response.data.data;
   },
