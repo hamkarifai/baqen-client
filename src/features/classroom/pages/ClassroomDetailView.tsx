@@ -318,6 +318,11 @@ export const ClassroomDetailView = () => {
                         key={idx}
                         book={book.book}
                         showMenu={isTeacher}
+                        onClick={() =>
+                          navigate(
+                            `/dashboard/kelas/${classroomId}/book/${book.book.id}`,
+                          )
+                        }
                       />
                     ))}
                   </div>
