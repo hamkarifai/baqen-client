@@ -115,6 +115,35 @@ export const classroomService = {
     return response.data.data;
   },
 
+  // CREATE BOOK IN CLASS (TEACHER)
+  createBookInClass: async (
+    classId: string,
+    payload: { title: string; description?: string; order?: number; cover_image?: File },
+  ): Promise<GetClassBook> => {
+    const formData = new FormData();
+    formData.append("title", payload.title);
+    if (payload.description) {
+      formData.append("description", payload.description);
+    }
+    if (payload.order !== undefined) {
+      formData.append("order", payload.order.toString());
+    }
+    if (payload.cover_image instanceof File) {
+      formData.append("cover_image", payload.cover_image);
+    }
+
+    const response = await api.post(
+      `/api/v1/classes/${classId}/books/create`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return response.data.data;
+  },
+
   // REMOVE BOOK FROM CLASS (TEACHER)
   removeBookFromClass: async (
     classId: string,

@@ -33,7 +33,6 @@ import {
   type BookCardProps,
 } from "@/features/personal/components/BookCard";
 import { AddBookToClassSection } from "../components/dashboard/AddBookToClassSection";
-import { BookClassDailyReviewSection } from "../components/dashboard/BookClassDailyReviewSection";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 
 export const ClassroomDetailView = () => {
@@ -335,11 +334,6 @@ export const ClassroomDetailView = () => {
                     </p>
                   </div>
                 )}
-
-                {/* ─── DAILY REVIEW SECTION UNTUK KELAS BUKU ─── */}
-                <BookClassDailyReviewSection
-                  classId={classroomId || ""}
-                />
 
                 {/* ─── ADD BOOK TO CLASS SECTION (HANYA UNTUK GURU) ─── */}
                 {isTeacher && (

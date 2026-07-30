@@ -108,6 +108,32 @@ export const useAddBookToClass = () => {
   });
 };
 
+// Hook to create book in classroom (teacher)
+export const useCreateBookInClass = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: {
+      classId: string;
+      title: string;
+      description?: string;
+      order?: number;
+      cover_image?: File;
+    }) =>
+      classroomService.createBookInClass(payload.classId, {
+        title: payload.title,
+        description: payload.description,
+        order: payload.order,
+        cover_image: payload.cover_image,
+      }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["class-book", variables.classId],
+      });
+    },
+  });
+};
+
 // Hook to remove book from classroom
 export const useRemoveBookFromClass = () => {
   const queryClient = useQueryClient();

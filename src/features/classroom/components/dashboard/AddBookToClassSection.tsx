@@ -1,20 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Plus } from "lucide-react";
+import { BookOpen, Plus, PlusCircle } from "lucide-react";
 import { useGetClassBook } from "../../hooks/useClassroom";
 import { AddBookToClassModal } from "./AddBookToClassModal";
+import { CreateBookInClassModal } from "./CreateBookInClassModal";
 
 interface AddBookSectionProps {
   classroomId: string;
 }
 
 export const AddBookToClassSection = ({ classroomId }: AddBookSectionProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { data: currentClassBooks = [] } = useGetClassBook(classroomId);
-
-  const handleOpenAddBookModal = () => {
-    setIsModalOpen(true);
-  };
 
   return (
     <>
@@ -28,31 +26,44 @@ export const AddBookToClassSection = ({ classroomId }: AddBookSectionProps) => {
               Panel Administrasi Guru
             </div>
             <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-indigo-400" /> Tambah Kitab ke
-              Kelas Ini
+              <BookOpen className="h-5 w-5 text-indigo-400" /> Kelola Kitab di Kelas Ini
             </h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Butuh materi pelajaran tambahan? Anda dapat memasukkan buku digital
-              atau materi modul baru dari pustaka pribadi Anda agar bisa langsung
-              diakses oleh semua siswa yang terdaftar.
+              Anda dapat membuat buku baru khusus kelas ini atau memasukkan materi kitab dari pustaka pribadi Anda agar bisa langsung diakses oleh seluruh siswa.
             </p>
           </div>
 
-          <Button
-            onClick={handleOpenAddBookModal}
-            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl h-11 px-5 shadow-lg shadow-indigo-600/20 transition-all shrink-0 gap-2 cursor-pointer group"
-          >
-            <Plus className="h-4 w-4 stroke-[2.5] group-hover:rotate-90 transition-transform duration-300" />
-            Pilih Buku
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl h-11 px-5 shadow-lg shadow-emerald-600/20 transition-all gap-2 cursor-pointer group"
+            >
+              <PlusCircle className="h-4 w-4 stroke-[2.5]" />
+              Buat Buku Baru
+            </Button>
+            <Button
+              onClick={() => setIsAddModalOpen(true)}
+              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl h-11 px-5 shadow-lg shadow-indigo-600/20 transition-all gap-2 cursor-pointer group"
+            >
+              <Plus className="h-4 w-4 stroke-[2.5] group-hover:rotate-90 transition-transform duration-300" />
+              Pilih dari Pustaka
+            </Button>
+          </div>
         </div>
       </section>
 
       <AddBookToClassModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
         classroomId={classroomId}
         currentClassBooks={currentClassBooks}
+      />
+
+      <CreateBookInClassModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        classroomId={classroomId}
+        nextOrder={currentClassBooks.length + 1}
       />
     </>
   );
