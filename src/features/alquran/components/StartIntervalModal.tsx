@@ -58,9 +58,9 @@ export const StartIntervalModal = ({
       />
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-sm bg-[#0F1218] border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-sm bg-[#0F1218] border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="p-6 border-b border-white/5 flex items-center justify-between">
+        <div className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-amber-500/20 text-amber-500">
               <CalendarDays className="w-5 h-5" />
@@ -74,14 +74,14 @@ export const StartIntervalModal = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+            className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-80px)]">
           {/* Tampilan angka hari yang dipilih */}
           <div className="text-center">
             <span className="text-6xl font-mono font-bold text-white">
@@ -99,8 +99,9 @@ export const StartIntervalModal = ({
               {PRESETS.map((preset) => (
                 <button
                   key={preset}
+                  type="button"
                   onClick={() => setIntervalDays(preset)}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+                  className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all cursor-pointer ${
                     intervalDays === preset
                       ? "bg-amber-500/20 border-amber-500/50 text-amber-400"
                       : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
@@ -138,9 +139,10 @@ export const StartIntervalModal = ({
 
           {/* Submit button */}
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={loading || intervalDays < 1}
-            className="w-full py-4 rounded-xl bg-linear-to-r from-amber-500 to-orange-600 text-black font-bold shadow-lg shadow-amber-900/20 hover:shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-xl bg-linear-to-r from-amber-500 to-orange-600 text-black font-bold shadow-lg shadow-amber-900/20 hover:shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
           >
             {loading ? (
               <>
