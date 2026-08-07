@@ -9,7 +9,6 @@ import {
   Lock,
   Flame,
   Brain,
-  Clock,
   Target,
   CheckCircle2,
   Play,
@@ -304,18 +303,6 @@ export const ItemDetailPage = () => {
           border: "border-blue-500/20",
           icon: Brain,
           description: "Item sedang dalam tahap menghafal",
-          buttonText: "Mulai Latihan Interval",
-          buttonAction: () => setIsIntervalModalOpen(true),
-          isLoading: isStartingInterval,
-        };
-      case "interval":
-        return {
-          label: "Latihan Interval",
-          color: "text-amber-400",
-          bg: "bg-amber-500/10",
-          border: "border-amber-500/20",
-          icon: Clock,
-          description: "Item sedang dalam masa latihan interval review",
           buttonText: "Mulai Ujian Interval",
           buttonAction: () => setIsActivateFsrsModalOpen(true),
           isLoading: isActivatingFsrs,
@@ -588,12 +575,10 @@ export const ItemDetailPage = () => {
                               getNormalizedStatus() === "belum_mulai"
                                 ? "0%"
                                 : getNormalizedStatus() === "menghafal"
-                                  ? "25%"
-                                  : getNormalizedStatus() === "interval"
-                                    ? "50%"
-                                    : getNormalizedStatus() === "fsrs_active"
-                                      ? "75%"
-                                      : "100%",
+                                  ? "35%"
+                                  : getNormalizedStatus() === "fsrs_active"
+                                    ? "65%"
+                                    : "100%",
                           }}
                         />
                       </div>
@@ -602,7 +587,6 @@ export const ItemDetailPage = () => {
                       {[
                         { key: "belum_mulai", label: "Mulai", icon: Play },
                         { key: "menghafal", label: "Menghafal", icon: Brain },
-                        { key: "interval", label: "Interval", icon: Clock },
                         { key: "fsrs_active", label: "Ujian", icon: Target },
                         { key: "graduate", label: "Lulus", icon: CheckCircle2 },
                       ].map((step) => {
@@ -610,7 +594,6 @@ export const ItemDetailPage = () => {
                         const phases = [
                           "belum_mulai",
                           "menghafal",
-                          "interval",
                           "fsrs_active",
                           "graduate",
                         ];
@@ -655,19 +638,17 @@ export const ItemDetailPage = () => {
 
                   {/* Mobile View */}
                   <div className="sm:hidden">
-                    <div className="flex items-start justify-center gap-3 flex-wrap pt-2">
+                    <div className="flex items-start justify-center gap-4 flex-wrap pt-2">
                       {[
                         { key: "belum_mulai", label: "Mulai", icon: Play },
                         { key: "menghafal", label: "Menghafal", icon: Brain },
-                        { key: "interval", label: "Interval", icon: Clock },
                         { key: "fsrs_active", label: "Ujian", icon: Target },
                         { key: "graduate", label: "Lulus", icon: CheckCircle2 },
-                      ].map((step) => {
+                      ].map((step, idx, arr) => {
                         const status = getNormalizedStatus();
                         const phases = [
                           "belum_mulai",
                           "menghafal",
-                          "interval",
                           "fsrs_active",
                           "graduate",
                         ];
@@ -680,10 +661,10 @@ export const ItemDetailPage = () => {
                         return (
                           <div
                             key={step.key}
-                            className="relative flex flex-col items-center gap-1.5 min-w-[54px]"
+                            className="flex flex-col items-center gap-2 min-w-[60px]"
                           >
                             <div
-                              className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                              className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
                                 isActive
                                   ? "bg-emerald-500 border-emerald-400 text-white shadow-lg shadow-emerald-500/30"
                                   : isCompleted
@@ -704,6 +685,15 @@ export const ItemDetailPage = () => {
                             >
                               {step.label}
                             </span>
+                            {/* Connector Line */}
+                            {idx < arr.length - 1 && (
+                              <div className="absolute top-14 left-10 w-8 h-0.5 bg-gray-700 -z-10">
+                                {isCompleted ||
+                                (isActive && idx < currentIndex) ? (
+                                  <div className="h-full bg-emerald-500 w-full" />
+                                ) : null}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
