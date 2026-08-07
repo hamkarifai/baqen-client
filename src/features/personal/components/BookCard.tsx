@@ -42,24 +42,34 @@ export const BookCard = ({
   };
 
   const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!classroomId) return;
+    
+    setIsDropdownOpen(false);
+    setMenuOpen(false);
     const toastId = toast.loading("Menghapus buku dari kelas...");
-    try {
-      e.stopPropagation();
-      setIsDropdownOpen(false);
-      removeBookMutation.mutate({
-        classId: classroomId!,
-        bookId: book.id,
-      });
-      toast.success("Buku berhasil dihapus dari kelas!", {
-        id: toastId,
-        duration: 3000,
-      });
-    } catch (err: any) {
-      toast.error(err?.message || "Gagal menghapus buku dari kelas.", {
-        id: toastId,
-        duration: 4000,
-      });
-    }
+
+    removeBookMutation.mutate(
+      { classId: classroomId, bookId: book.id },
+      {
+        onSuccess: () => {
+          toast.success("Buku berhasil dihapus dari kelas!", {
+            id: toastId,
+            duration: 3000,
+          });
+        },
+        onError: (err: any) => {
+          toast.error(
+            err?.response?.data?.message || err?.message || "Gagal menghapus buku dari kelas.",
+            {
+              id: toastId,
+              duration: 4000,
+            }
+          );
+        },
+      }
+    );
   };
 
   const formattedDate = new Date(book.created_at).toLocaleDateString("id-ID", {
@@ -67,12 +77,12 @@ export const BookCard = ({
     month: "short",
     day: "numeric",
   });
-  console.log("showMenu:", showMenu);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     if (!menuOpen && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
       setMenuPos({
@@ -85,12 +95,14 @@ export const BookCard = ({
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     setMenuOpen(false);
     onEdit?.(book);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     setMenuOpen(false);
     onDelete?.(book);
   };
@@ -113,6 +125,8 @@ export const BookCard = ({
     };
   }, [menuOpen]);
 
+  const hasMenuActions = Boolean(onEdit || onDelete || (showMenu && classroomId));
+
   return (
     <div
       onClick={onClick}
@@ -127,12 +141,13 @@ export const BookCard = ({
       <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-blue-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
       <div className="absolute -inset-10 bg-blue-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 rounded-full pointer-events-none" />
 
-      {/* Three-dot button — inside card, z-10 */}
-      {(onEdit || onDelete) && (
+      {/* Three-dot button — inside card, z-20 */}
+      {hasMenuActions && (
         <button
           ref={btnRef}
+          type="button"
           onClick={toggleMenu}
-          className="absolute top-3 right-3 z-20 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-lg text-gray-300 hover:text-white hover:bg-white/20 transition-all duration-300"
+          className="absolute top-3 right-3 z-20 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-lg text-gray-300 hover:text-white hover:bg-white/20 transition-all duration-300 cursor-pointer"
         >
           <MoreVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </button>
@@ -145,47 +160,47 @@ export const BookCard = ({
             ref={menuRef}
             className="fixed w-44 bg-[#161D26]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             style={{ top: menuPos.top, right: menuPos.right, zIndex: 9999 }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
           >
-            <button
-              onClick={handleEdit}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-200 hover:text-white hover:bg-blue-500/20 transition-colors text-left"
-            >
-              <Edit2 className="w-4 h-4 text-blue-400" />
-              <span>Edit Buku</span>
-            </button>
-            <div className="w-full h-px bg-white/5" />
-            <button
-              onClick={handleDelete}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-left"
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>Hapus Buku</span>
-            </button>
+            {onEdit && (
+              <button
+                type="button"
+                onClick={handleEdit}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-200 hover:text-white hover:bg-blue-500/20 transition-colors text-left cursor-pointer"
+              >
+                <Edit2 className="w-4 h-4 text-blue-400" />
+                <span>Edit Buku</span>
+              </button>
+            )}
+            {onEdit && (onDelete || (showMenu && classroomId)) && (
+              <div className="w-full h-px bg-white/5" />
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-left cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Hapus Buku</span>
+              </button>
+            )}
+            {showMenu && classroomId && (
+              <button
+                type="button"
+                onClick={handleRemove}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-left cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Hapus dari Kelas</span>
+              </button>
+            )}
           </div>,
           document.body,
         )}
-
-      {showMenu && (
-        <button
-          onClick={handleMenuClick}
-          className="absolute bg-black/40 backdrop-blur-md shadow-2xl shadow-black z-50 top-4 right-4 p-1 rounded-full hover:bg-black/50"
-        >
-          <MoreVertical className="w-5 h-5" />
-        </button>
-      )}
-
-      {isDropdownOpen && (
-        <div className="absolute top-10 mt-2 right-2 z-50 min-w-[140px] bg-[#0E131F] border border-white/[0.08] rounded-lg shadow-2xl overflow-hidden backdrop-blur-xl">
-          <button
-            onClick={handleRemove}
-            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>Remove from class</span>
-          </button>
-        </div>
-      )}
 
       {/* Image header */}
       <div className="relative h-28 sm:h-48 w-full shrink-0 flex items-center justify-center bg-[#0A0D14]">

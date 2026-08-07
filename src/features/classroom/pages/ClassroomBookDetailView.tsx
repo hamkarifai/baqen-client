@@ -771,9 +771,14 @@ export const ClassroomBookDetailView = () => {
                             />
                             {!isTeacher && (
                               <button
-                                onClick={() => handleStartItem(item.id)}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  handleStartItem(item.id);
+                                }}
                                 disabled={startLoading}
-                                className="absolute bottom-4 left-4 right-4 flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-emerald-900/30"
+                                className="absolute bottom-4 left-4 right-4 flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-emerald-900/30 cursor-pointer"
                               >
                                 <Play className="w-4 h-4" />
                                 {startLoading ? "Memulai..." : "Mulai"}

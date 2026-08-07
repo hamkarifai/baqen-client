@@ -746,7 +746,10 @@ export const ItemDetailPage = () => {
             className="absolute inset-0 bg-black/75 backdrop-blur-md"
             onClick={() => setIsStartModalOpen(false)}
           />
-          <div className="relative z-10 w-full max-w-lg animate-in fade-in zoom-in-95 duration-300">
+          <div
+            className="relative z-10 w-full max-w-lg animate-in fade-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="absolute -inset-px rounded-[2.5rem] bg-linear-to-br from-emerald-500/30 via-cyan-500/20 to-transparent blur-sm pointer-events-none" />
             <div className="relative rounded-[2.5rem] sm:rounded-[2.5rem] bg-[#0E1420] border border-white/10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] overflow-hidden p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
               <div className="text-center">
