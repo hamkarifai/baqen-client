@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router";
 import {
   ArrowLeft,
@@ -740,57 +741,61 @@ export const ItemDetailPage = () => {
       </div>
 
       {/* Start Hafalan Modal */}
-      {isStartModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
-          <div
-            className="absolute inset-0 bg-black/75 backdrop-blur-md"
-            onClick={() => setIsStartModalOpen(false)}
-          />
-          <div
-            className="relative z-10 w-full max-w-lg animate-in fade-in zoom-in-95 duration-300"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="absolute -inset-px rounded-[2.5rem] bg-linear-to-br from-emerald-500/30 via-cyan-500/20 to-transparent blur-sm pointer-events-none" />
-            <div className="relative rounded-[2.5rem] sm:rounded-[2.5rem] bg-[#0E1420] border border-white/10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] overflow-hidden p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
-              <div className="text-center">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
-                  <Brain className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-400" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                  Mulai Menghafal?
-                </h3>
-                <p className="text-gray-400 text-xs sm:text-sm mb-6 leading-relaxed">
-                  Apakah Anda yakin ingin memulai menghafal item ini? Setelah
-                  dimulai, item akan masuk ke sistem interval review.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => setIsStartModalOpen(false)}
-                    disabled={isStarting}
-                    className="flex-1 px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white text-sm font-medium transition disabled:opacity-50 cursor-pointer"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    onClick={handleStartPhase}
-                    disabled={isStarting}
-                    className="flex-1 px-5 py-3 rounded-xl bg-linear-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white text-sm font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    {isStarting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Memproses...
-                      </>
-                    ) : (
-                      "Ya, Mulai"
-                    )}
-                  </button>
+      {isStartModalOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-9999 flex items-center justify-center p-3 sm:p-4">
+            <div
+              className="absolute inset-0 bg-black/75 backdrop-blur-md"
+              onClick={() => setIsStartModalOpen(false)}
+            />
+            <div
+              className="relative z-10 w-full max-w-lg animate-in fade-in zoom-in-95 duration-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="absolute -inset-px rounded-[2.5rem] bg-linear-to-br from-emerald-500/30 via-cyan-500/20 to-transparent blur-sm pointer-events-none" />
+              <div className="relative rounded-[2.5rem] sm:rounded-[2.5rem] bg-[#0E1420] border border-white/10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] overflow-hidden p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
+                <div className="text-center">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
+                    <Brain className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-400" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+                    Mulai Menghafal?
+                  </h3>
+                  <p className="text-gray-400 text-xs sm:text-sm mb-6 leading-relaxed">
+                    Apakah Anda yakin ingin memulai menghafal item ini? Setelah
+                    dimulai, item akan masuk ke sistem interval review.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsStartModalOpen(false)}
+                      disabled={isStarting}
+                      className="flex-1 px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white text-sm font-medium transition disabled:opacity-50 cursor-pointer"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleStartPhase}
+                      disabled={isStarting}
+                      className="flex-1 px-5 py-3 rounded-xl bg-linear-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white text-sm font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isStarting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Memproses...
+                        </>
+                      ) : (
+                        "Ya, Mulai"
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
       {/* Interval Modal */}
       {isIntervalModalOpen && item && (
