@@ -50,10 +50,7 @@ export const ItemDetailPage = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [item, setItem] = useState<BookItem | null>(null);
-  const [realItemId, setRealItemId] = useState<string | null>(
-    // Persist across navigation within same session using sessionStorage
-    itemId ? sessionStorage.getItem(`real-item-id-${itemId}`) : null,
-  );
+  const [realItemId, setRealItemId] = useState<string | null>(null);
   // Track if we have a pending optimistic status update that shouldn't be overwritten by tree sync
   const pendingStatusRef = useRef<BookItem["status"] | null>(null);
   // Track the last status confirmed by the API
@@ -119,14 +116,12 @@ export const ItemDetailPage = () => {
       const contentRef = contentRefForItem(bookId, itemId);
       const entry = statusMap.get(contentRef);
 
-      const sessionStatus = sessionStorage.getItem(`item-status-${itemId}`);
-      const finalStatus = (entry?.status ??
-        sessionStatus ??
-        "belum_mulai") as BookItem["status"];
+      const finalStatus = (entry?.status ?? "belum_mulai") as BookItem["status"];
 
       if (entry?.item_id) {
         setRealItemId(entry.item_id);
-        sessionStorage.setItem(`real-item-id-${itemId}`, entry.item_id);
+      } else {
+        setRealItemId(null);
       }
 
       setItem({ ...foundItem, status: finalStatus });
@@ -161,8 +156,6 @@ export const ItemDetailPage = () => {
     try {
       await deleteItemFn(itemId, bookId || undefined);
       setIsDeleteModalOpen(false);
-      sessionStorage.removeItem(`real-item-id-${itemId}`);
-      sessionStorage.removeItem(`item-status-${itemId}`);
       navigate(-1);
     } catch (err: unknown) {
       // avoid logging raw error objects to prevent leaking internal details
@@ -179,12 +172,10 @@ export const ItemDetailPage = () => {
       // result.item_id is the Item state ID needed for interval/fsrs calls
       if (result.item_id) {
         setRealItemId(result.item_id);
-        sessionStorage.setItem(`real-item-id-${itemId}`, result.item_id);
       }
       const newStatus = result.status || "menghafal";
       pendingStatusRef.current = newStatus as BookItem["status"];
       apiStatusRef.current = newStatus as BookItem["status"];
-      sessionStorage.setItem(`item-status-${itemId}`, newStatus);
       setItem((prev) =>
         prev ? { ...prev, status: newStatus as BookItem["status"] } : null,
       );
@@ -196,8 +187,7 @@ export const ItemDetailPage = () => {
 
   const handleIntervalSubmit = async (intervalDays: number) => {
     if (!bookId || !itemId) return;
-    const itemIdToUse =
-      realItemId || sessionStorage.getItem(`real-item-id-${itemId}`);
+    const itemIdToUse = realItemId;
     if (!itemIdToUse) {
       console.error("[handleIntervalSubmit] No real item_id available");
       return;
@@ -206,7 +196,6 @@ export const ItemDetailPage = () => {
       await startInterval(bookId, itemIdToUse, intervalDays);
       pendingStatusRef.current = "interval";
       apiStatusRef.current = "interval";
-      sessionStorage.setItem(`item-status-${itemId}`, "interval");
       setItem((prev) => (prev ? { ...prev, status: "interval" } : null));
       setIsIntervalModalOpen(false);
     } catch (err: unknown) {
@@ -218,8 +207,7 @@ export const ItemDetailPage = () => {
 
   const handleActivateFsrsPhase = async () => {
     if (!bookId || !itemId) return;
-    const itemIdToUse =
-      realItemId || sessionStorage.getItem(`real-item-id-${itemId}`);
+    const itemIdToUse = realItemId;
     if (!itemIdToUse) {
       console.error("[handleActivateFsrsPhase] No real item_id available");
       return;
@@ -228,7 +216,6 @@ export const ItemDetailPage = () => {
       await activateFsrs(bookId, itemIdToUse);
       pendingStatusRef.current = "fsrs_active";
       apiStatusRef.current = "fsrs_active";
-      sessionStorage.setItem(`item-status-${itemId}`, "fsrs_active");
       setItem((prev) => (prev ? { ...prev, status: "fsrs_active" } : null));
       setIsActivateFsrsModalOpen(false);
     } catch (err: unknown) {
@@ -240,8 +227,7 @@ export const ItemDetailPage = () => {
 
   const handleDeactivate = async () => {
     if (!itemId) return;
-    const itemIdToUse =
-      realItemId || sessionStorage.getItem(`real-item-id-${itemId}`);
+    const itemIdToUse = realItemId;
     if (!itemIdToUse) {
       console.error("[handleDeactivate] No real item_id available");
       return;
@@ -250,7 +236,6 @@ export const ItemDetailPage = () => {
       await personalService.deactivateItem(itemIdToUse);
       pendingStatusRef.current = "inactive";
       apiStatusRef.current = "inactive";
-      sessionStorage.setItem(`item-status-${itemId}`, "inactive");
       setItem((prev) => (prev ? { ...prev, status: "inactive" } : null));
       setIsDeactivateModalOpen(false);
     } catch (err: unknown) {
@@ -262,8 +247,7 @@ export const ItemDetailPage = () => {
 
   const handleReactivate = async () => {
     if (!itemId) return;
-    const itemIdToUse =
-      realItemId || sessionStorage.getItem(`real-item-id-${itemId}`);
+    const itemIdToUse = realItemId;
     if (!itemIdToUse) {
       console.error("[handleReactivate] No real item_id available");
       return;
@@ -272,7 +256,6 @@ export const ItemDetailPage = () => {
       await personalService.reactivateItem(itemIdToUse);
       pendingStatusRef.current = "fsrs_active";
       apiStatusRef.current = "fsrs_active";
-      sessionStorage.setItem(`item-status-${itemId}`, "fsrs_active");
       setItem((prev) => (prev ? { ...prev, status: "fsrs_active" } : null));
       setIsReactivateModalOpen(false);
     } catch (err: unknown) {
