@@ -485,10 +485,9 @@ export const ClassroomBookDetailView = () => {
   const handleStartItem = async (itemId: string) => {
     if (!bookId) return;
     try {
-      const result = await startPhase(bookId, itemId);
-      const itemsBookItemId = result.item_id;
+      await startPhase(bookId, itemId);
       navigate(
-        `/dashboard/pribadi/book/${bookId}/item/${itemsBookItemId}`,
+        `/dashboard/pribadi/book/${bookId}/item/${itemId}`,
       );
     } catch {
       toast.error("Gagal memulai item.");
