@@ -517,7 +517,7 @@ export const ModuleDetailPage = () => {
                 </h1>
 
                 {module.description ? (
-                  <p className="text-gray-400 text-base leading-relaxed font-light max-w-2xl">
+                  <p className="text-gray-400 text-base leading-relaxed font-light max-w-2xl whitespace-pre-wrap break-words">
                     {module.description}
                   </p>
                 ) : (
