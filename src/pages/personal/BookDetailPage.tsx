@@ -425,7 +425,7 @@ const ModuleCard = ({
                 Deskripsi
               </span>
             </div>
-            <p className="text-sm text-gray-400 leading-relaxed line-clamp-3">
+            <p className="text-sm text-gray-400 leading-relaxed line-clamp-3 whitespace-pre-wrap break-words">
               {module.description}
             </p>
           </div>
