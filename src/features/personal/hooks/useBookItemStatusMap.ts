@@ -12,7 +12,7 @@ export const contentRefForItem = (bookId: string, bookItemId: string) =>
 
 // All statuses that create an Item entity in the DB.
 // "belum_mulai" items don't have an Item entity yet — they're just BookItems.
-const REVIEWABLE_STATUSES = ["menghafal", "interval", "fsrs_active", "graduate", "inactive", "start"];
+const REVIEWABLE_STATUSES = ["menghafal", "interval", "fsrs_active", "graduate", "inactive", "start", "belum_mulai"];
 
 // The Go backend's MarshalJSON converts "fsrs_active" → "ujian" in JSON output.
 // Normalize it back so the frontend always works with "fsrs_active".
