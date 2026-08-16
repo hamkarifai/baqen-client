@@ -197,3 +197,12 @@ export const useRejectGraduation = () => {
     },
   });
 };
+
+// Hook to fetch student progress for a book in classroom (teacher)
+export const useGetClassBookStudentProgress = (classId: string, bookId: string) => {
+  return useQuery({
+    queryKey: ["class-book-student-progress", classId, bookId],
+    queryFn: () => classroomService.getClassBookStudentProgress(classId, bookId),
+    enabled: !!classId && !!bookId,
+  });
+};

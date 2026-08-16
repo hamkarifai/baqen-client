@@ -23,6 +23,8 @@ import {
   X,
   ChevronRight,
   Play,
+  Users,
+  Eye,
 } from "lucide-react";
 import { Sidebar } from "@/components/ui/Sidebar";
 import { useBookDetail } from "@/features/personal/hooks/useBookDetail";
@@ -33,6 +35,8 @@ import { useStartItemPhase } from "@/features/personal/hooks/useStartItemPhase";
 import { AddItemModal } from "@/features/personal/components/AddItemModal";
 import { BookItemCard } from "@/features/personal/components/BookItemCard";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
+import { useGetClassBookStudentProgress } from "@/features/classroom/hooks/useClassroom";
+import type { StudentBookProgress } from "@/features/classroom/types";
 import type { Module } from "@/features/personal/types/personal.types";
 import type { CreatedItem, CreatedModule } from "@/features/personal/types/personal.types";
 import { toast } from "sonner";
@@ -427,6 +431,221 @@ const ModuleCard = ({
   );
 };
 
+interface StudentProgressDetailModalProps {
+  student: StudentBookProgress;
+  bookTitle: string;
+  onClose: () => void;
+}
+
+const StudentProgressDetailModal = ({
+  student,
+  bookTitle,
+  onClose,
+}: StudentProgressDetailModalProps) => {
+  const unreviewed =
+    student.total_unreviewed ??
+    student.start + student.menghafal + student.interval;
+  const fsrsActive = student.total_fsrs_active ?? student.fsrs_active;
+  const inactive = student.total_inactive ?? student.inactive;
+
+  return createPortal(
+    <div className="fixed inset-0 z-9999 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/75 backdrop-blur-md"
+        onClick={onClose}
+      />
+      <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in-95 duration-300">
+        <div className="absolute -inset-px rounded-[2.5rem] bg-linear-to-br from-purple-500/30 via-blue-500/20 to-transparent blur-sm pointer-events-none" />
+        <div className="relative rounded-[2.5rem] bg-[#0E1420] border border-white/10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] overflow-hidden">
+          <div className="relative px-8 pt-8 pb-6 border-b border-white/5">
+            <button
+              onClick={onClose}
+              className="absolute top-6 right-6 w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-10 h-10 rounded-2xl bg-purple-500/15 border border-purple-500/20 flex items-center justify-center">
+                <Users className="w-5 h-5 text-purple-400" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-xl font-bold text-white tracking-tight truncate">
+                  Progress {student.full_name || student.email}
+                </h2>
+                <p className="text-xs text-gray-400 truncate">Buku: {bookTitle}</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-8 space-y-4">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
+              Statistik Progress
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+                <span className="text-sm font-medium text-amber-200">
+                  Belum di-review
+                </span>
+                <span className="text-lg font-mono font-bold text-amber-400">
+                  {unreviewed} item
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                <span className="text-sm font-medium text-emerald-200">
+                  FSRS Aktif
+                </span>
+                <span className="text-lg font-mono font-bold text-emerald-400">
+                  {fsrsActive} item
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20">
+                <span className="text-sm font-medium text-rose-200">
+                  Nonaktif
+                </span>
+                <span className="text-lg font-mono font-bold text-rose-400">
+                  {inactive} item
+                </span>
+              </div>
+            </div>
+            <div className="pt-4 flex justify-end">
+              <button
+                onClick={onClose}
+                className="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm transition"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+};
+
+interface ClassroomBookStudentProgressSectionProps {
+  classroomId: string;
+  bookId: string;
+  bookTitle: string;
+}
+
+const ClassroomBookStudentProgressSection = ({
+  classroomId,
+  bookId,
+  bookTitle,
+}: ClassroomBookStudentProgressSectionProps) => {
+  const { data, isLoading, isError } = useGetClassBookStudentProgress(
+    classroomId,
+    bookId,
+  );
+  const [selectedStudent, setSelectedStudent] =
+    useState<StudentBookProgress | null>(null);
+
+  if (isLoading) {
+    return (
+      <div className="relative rounded-[2.5rem] overflow-hidden border border-white/5 bg-[#0E1420] p-8 flex flex-col items-center justify-center py-12 gap-3 mb-8">
+        <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+        <p className="text-xs text-gray-500">Memuat progress siswa...</p>
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="relative rounded-[2.5rem] overflow-hidden border border-rose-500/20 bg-[#0E1420] p-6 mb-8 text-center text-xs text-rose-400">
+        Gagal memuat progress siswa.
+      </div>
+    );
+  }
+
+  const students = data.students ?? [];
+
+  return (
+    <div className="relative rounded-[2.5rem] overflow-hidden border border-white/5 bg-[#0E1420] mb-8">
+      <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-purple-500/30 to-transparent" />
+      <div className="px-8 py-7 border-b border-white/5 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2.5">
+            <Users className="w-5 h-5 text-purple-400" />
+            Progress Siswa
+          </h2>
+          <p className="text-xs text-gray-400 mt-1">
+            Daftar siswa yang mengikuti kelas dan progress pada buku ini
+          </p>
+        </div>
+        <span className="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold">
+          {students.length} Siswa
+        </span>
+      </div>
+
+      <div className="p-8">
+        {students.length === 0 ? (
+          <div className="text-center py-12 text-gray-500 text-sm">
+            Belum ada siswa yang bergabung di kelas ini.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {students.map((st) => {
+              const unreviewed =
+                st.total_unreviewed ??
+                st.start + st.menghafal + st.interval;
+              const fsrsActive = st.total_fsrs_active ?? st.fsrs_active;
+              const inactive = st.total_inactive ?? st.inactive;
+
+              return (
+                <div
+                  key={st.user_id}
+                  className="bg-[#090A0F]/80 border border-white/5 rounded-2xl p-5 hover:border-purple-500/30 transition-all flex flex-col justify-between"
+                >
+                  <div className="mb-4">
+                    <h3 className="font-bold text-white text-base mb-3 truncate">
+                      {st.full_name || st.email}
+                    </h3>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex items-center justify-between text-gray-400">
+                        <span>Belum di-review</span>
+                        <span className="font-mono font-semibold text-amber-400">
+                          {unreviewed} item
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-gray-400">
+                        <span>Aktif FSRS</span>
+                        <span className="font-mono font-semibold text-emerald-400">
+                          {fsrsActive} item
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-gray-400">
+                        <span>Nonaktif</span>
+                        <span className="font-mono font-semibold text-rose-400">
+                          {inactive} item
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedStudent(st)}
+                    className="w-full mt-2 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-xs transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-blue-400" />
+                    Lihat Progress
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {selectedStudent && (
+        <StudentProgressDetailModal
+          student={selectedStudent}
+          bookTitle={bookTitle}
+          onClose={() => setSelectedStudent(null)}
+        />
+      )}
+    </div>
+  );
+};
+
 export const ClassroomBookDetailView = () => {
   const { classroomId, bookId } = useParams<{
     classroomId: string;
@@ -698,6 +917,14 @@ export const ClassroomBookDetailView = () => {
                 </div>
               ))}
             </div>
+
+            {isTeacher && classroomId && bookId && (
+              <ClassroomBookStudentProgressSection
+                classroomId={classroomId}
+                bookId={bookId}
+                bookTitle={book.title}
+              />
+            )}
 
             <div className="relative rounded-[2.5rem] overflow-hidden border border-white/5 bg-[#0E1420]">
               <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-blue-500/30 to-transparent" />

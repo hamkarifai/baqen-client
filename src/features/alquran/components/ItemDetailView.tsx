@@ -159,12 +159,13 @@ export const ItemDetailView = ({
   const handleActionClick = async () => {
     switch (phase) {
       case "menghafal":
-        transitionTo("interval_start");
+        try {
+          await activateFsrs(item.item_id);
+          transitionTo("terjaga");
+        } catch {
+          // Error shown via activateFsrsError
+        }
         break;
-      case "interval_start":
-        setIsModalOpen(true);
-        break;
-      case "interval_end":
       case "terjaga":
       case "graduate":
         if (onRedirect) {
@@ -176,21 +177,6 @@ export const ItemDetailView = ({
       default:
         break;
     }
-  };
-
-  const handleSecondaryActionClick = async () => {
-    if (phase !== "interval_end") return;
-
-    try {
-      await activateFsrs(item.item_id);
-      transitionTo("terjaga");
-    } catch {
-      // Error ditampilkan di action section.
-    }
-  };
-
-  const handleIntervalSuccess = () => {
-    transitionTo("interval_end");
   };
 
   const handleEditSuccess = (updatedData: {
@@ -238,7 +224,7 @@ export const ItemDetailView = ({
         config={config}
         statusDisplay={statusDisplay}
         onPrimaryAction={handleActionClick}
-        onSecondaryAction={handleSecondaryActionClick}
+        onSecondaryAction={() => {}}
         secondaryActionDisabled={activateFsrsLoading}
         secondaryActionLabel={
           activateFsrsLoading ? "Mengaktifkan..." : undefined
@@ -246,14 +232,6 @@ export const ItemDetailView = ({
         secondaryActionError={activateFsrsError}
         onEditClick={() => setIsEditModalOpen(true)}
         onDeleteClick={() => setIsDeleteModalOpen(true)}
-      />
-
-      <StartIntervalModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        itemId={currentItem.item_id}
-        itemTitle={`${info.title} – ${info.subtitle}`}
-        onSuccess={handleIntervalSuccess}
       />
 
       <EditItemModal

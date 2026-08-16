@@ -1,4 +1,5 @@
 import type {
+  ClassBookStudentProgress,
   ClassItem,
   ClassMember,
   CreateClassPayload,
@@ -190,6 +191,17 @@ export const classroomService = {
   // GET STUDENT PROGRESS (TEACHER - QURAN CLASS)
   getStudentProgress: async (classId: string): Promise<StudentProgress[]> => {
     const response = await api.get(`/api/v1/classes/${classId}/progress`);
+    return response.data.data;
+  },
+
+  // GET CLASS BOOK STUDENT PROGRESS (TEACHER - BOOK CLASS)
+  getClassBookStudentProgress: async (
+    classId: string,
+    bookId: string,
+  ): Promise<ClassBookStudentProgress> => {
+    const response = await api.get(
+      `/api/v1/classes/${classId}/books/${bookId}/progress`,
+    );
     return response.data.data;
   },
 };
