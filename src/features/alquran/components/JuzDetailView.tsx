@@ -99,7 +99,8 @@ export const JuzDetailView = ({
       ? []
       : group.items.map((item) => ({
           ...item,
-          next_review_at: nextReviewMap[item.item_id] ?? item.next_review_at,
+          next_review_at:
+            nextReviewMap[item.item_id] ?? item.next_review_at ?? item.next_review,
         }));
 
     return {

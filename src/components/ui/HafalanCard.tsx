@@ -116,11 +116,11 @@ export const HafalanCard = ({ item, onClick }: HafalanCardProps) => {
                 })}
               </span>
             </div>
-            {item.next_review_at && (
+            {(item.next_review_at || item.next_review) && (
               <div className="flex items-center gap-2 group-hover:text-gray-400 transition-colors">
                 <Calendar className="w-3 h-3 md:w-4 md:h-4  text-blue-500/50" />
                 <span> 
-                  {new Date(item.next_review_at).toLocaleDateString("id-ID", {
+                  {new Date((item.next_review_at || item.next_review)!).toLocaleDateString("id-ID", {
                     month: "short",
                     day: "numeric",
                   })} 
