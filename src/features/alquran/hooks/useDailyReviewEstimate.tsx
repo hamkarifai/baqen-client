@@ -73,11 +73,19 @@ export const useDailyReviewEstimate = (classId?: string) => {
         new Map(reviewableTasks.map((task) => [task.item_id, task])).values(),
       );
 
-      // We need juz_id — fetch my-items to get juz_id per juz_index
+      // We need juz_id — fetch my-items to get juz_id per juz_index for the current context (personal vs class)
       const myItemsResponse = await alquranService.getMyItems("quran", classId);
       const juzIdByIndex = new Map<number, string>();
       myItemsResponse.data.groups.forEach((group) => {
-        juzIdByIndex.set(group.juz_index, group.juz_id);
+        if (classId) {
+          if (group.class_id === classId) {
+            juzIdByIndex.set(group.juz_index, group.juz_id);
+          }
+        } else {
+          if (!group.class_id) {
+            juzIdByIndex.set(group.juz_index, group.juz_id);
+          }
+        }
       });
 
       // Group by juz_index
