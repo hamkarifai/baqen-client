@@ -129,11 +129,9 @@ function PhaseProgress({ phase }: { phase: ActionPhase }) {
       })}
 
       <span className="hidden sm:inline-block md:ml-6 px-3 md:px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-widest shadow-inner mt-2 sm:mt-0">
-        {phase === "menghafal" && "Langkah 1 dari 5"}
-        {phase === "interval_start" && "Langkah 2 dari 5"}
-        {phase === "interval_end" && "Langkah 3 dari 5"}
-        {phase === "terjaga" && "Langkah 4 dari 5"}
-        {phase === "graduate" && "Langkah 5 dari 5"}
+        {phase === "menghafal" && "Langkah 1 dari 3"}
+        {phase === "terjaga" && "Langkah 2 dari 3"}
+        {phase === "graduate" && "Langkah 3 dari 3"}
       </span>
     </div>
   );
@@ -211,27 +209,7 @@ export function ItemDetailActionSection({
                 className={config.buttonClass}
                 icon={config.icon}
                 label={config.label}
-              />
-
-              {phase === "interval_end" &&
-                config.buttonSecondaryClass &&
-                config.iconSecondary &&
-                config.labelSecondary && (
-                  <PhaseButton
-                    onClick={onSecondaryAction}
-                    className={config.buttonSecondaryClass}
-                    icon={config.iconSecondary}
-                    label={secondaryActionLabel ?? config.labelSecondary}
-                    disabled={secondaryActionDisabled}
-                  />
-                )}
-
-              {phase === "interval_end" && secondaryActionError && (
-                <p className="text-sm text-red-400 text-center max-w-[240px]">
-                  {secondaryActionError}
-                </p>
-              )}
-            </div>
+              />            </div>
           </div>
 
           {/* Item Management Actions */}

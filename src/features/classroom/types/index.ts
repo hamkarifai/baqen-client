@@ -156,3 +156,46 @@ export type StudentProgress = {
   progress_pct: number;
   items: StudentProgressItem[];
 };
+
+// CLASS BOOK STUDENT PROGRESS (TEACHER - BOOK CLASS)
+
+export type StudentBookItemProgress = {
+  item_id: string;
+  book_item_id: string;
+  title: string;
+  status: string;
+  stability: string;
+  review_interval_days?: number;
+  fsrs_stability_days: number;
+  review_count: number;
+  last_review_at?: string;
+  next_review_at?: string;
+};
+
+export type StudentBookProgress = {
+  user_id: string;
+  email: string;
+  full_name: string;
+  total_items: number;
+  start: number;
+  menghafal: number;
+  interval: number;
+  fsrs_active: number;
+  pending_graduate: number;
+  graduate: number;
+  inactive: number;
+  total_unreviewed: number;
+  total_fsrs_active: number;
+  total_inactive: number;
+  average_stability: number;
+  average_started_stability: number;
+  items: StudentBookItemProgress[];
+};
+
+export type ClassBookStudentProgress = {
+  class_id: string;
+  book_id: string;
+  book_title: string;
+  total_book_items: number;
+  students: StudentBookProgress[];
+};

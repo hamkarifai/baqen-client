@@ -46,7 +46,11 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
       const response = await alquranService.getMyItems("quran", classId);
       const map = new Map<string, string>();
       response.data.groups.forEach((group) => {
-        if (!personalJuzIds.has(group.juz_id)) return;
+        if (classId) {
+          if (group.class_id !== classId) return;
+        } else {
+          if (group.class_id) return;
+        }
         group.items.forEach((item: MyItemDetail) => {
           map.set(item.item_id, item.status);
         });
@@ -55,7 +59,7 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
     } catch {
       // silent
     }
-  }, [classId, personalJuzIds]);
+  }, [classId]);
 
   const refreshDailyState = useCallback(async () => {
     try {
@@ -106,8 +110,12 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
         );
         return { ...juz, items, itemCount: items.length, totalEstimatedSeconds };
       })
-      .filter((juz) => juz.itemCount > 0 && personalJuzIds.has(juz.juz_id));
-  }, [juzEstimates, reviewedIds, personalJuzIds]);
+      .filter((juz) => {
+        if (juz.itemCount <= 0) return false;
+        if (classId) return true;
+        return !juz.juz_id || personalJuzIds.has(juz.juz_id);
+      });
+  }, [juzEstimates, reviewedIds, personalJuzIds, classId]);
 
   const totalItems = filteredJuzGroups.reduce((s, j) => s + j.itemCount, 0);
 

@@ -252,6 +252,7 @@ export interface MyItemDetail {
 export interface QuranGroup {
   juz_index: number;
   juz_id: string;
+  class_id?: string | null;
   item_count: number;
   items: MyItemDetail[];
 }
