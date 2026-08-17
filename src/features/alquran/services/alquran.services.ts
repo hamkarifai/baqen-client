@@ -90,7 +90,19 @@ export const alquranService = {
     const response = await api.get(
       `/api/v1/my-items?type=${type}${classQuery}`,
     );
-    return response.data;
+    const raw = response.data;
+    if (raw?.data?.groups && Array.isArray(raw.data.groups)) {
+      raw.data.groups.forEach((group: any) => {
+        if (Array.isArray(group.items)) {
+          group.items.forEach((item: any) => {
+            if (!item.next_review_at && item.next_review) {
+              item.next_review_at = item.next_review;
+            }
+          });
+        }
+      });
+    }
+    return raw;
   },
 
   async generateDaily(): Promise<DailyGenerateResponse> {
