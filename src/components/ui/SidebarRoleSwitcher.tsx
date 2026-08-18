@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 import { useDashboardModeStore } from "@/features/dashboard/stores/dashboard-mode.store";
+import { useNavigate } from "react-router";
 import {
   ChevronDown,
   GraduationCap,
@@ -9,7 +10,12 @@ import {
 import { useState, useRef, useEffect } from "react";
 import { clsx } from "clsx";
 
-export const SidebarRoleSwitcher = () => {
+interface SidebarRoleSwitcherProps {
+  onClose?: () => void;
+}
+
+export const SidebarRoleSwitcher = ({ onClose }: SidebarRoleSwitcherProps) => {
+  const navigate = useNavigate();
   const userRole = useAuthStore((state) => state.user?.role);
   const activeRole = useDashboardModeStore((state) => state.activeRole);
   const setActiveRole = useDashboardModeStore((state) => state.setActiveRole);
@@ -119,6 +125,8 @@ export const SidebarRoleSwitcher = () => {
                   onClick={() => {
                     setActiveRole(role);
                     setIsOpen(false);
+                    onClose?.();
+                    navigate("/dashboard");
                   }}
                   className={clsx(
                     "w-full flex items-center gap-3 p-2 rounded-xl transition-all",
