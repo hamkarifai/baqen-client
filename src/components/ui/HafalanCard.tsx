@@ -45,11 +45,12 @@ export const HafalanCard = ({ item, onClick }: HafalanCardProps) => {
   const intervalLabel = () => {
     switch (item.status) {
       case "fsrs_active":
-        return "Ujian Interval";
       case "interval":
-        return "Latihan Interval";
+        return "Ujian FSRS";
       case "graduate":
         return "Selesai";
+      case "menghafal":
+        return "Menghafal";
       default:
         return item.status;
     }

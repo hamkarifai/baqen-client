@@ -31,7 +31,7 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
     useDailyReviewEstimate(classId);
 
   const personalJuzIds = useMemo(() => {
-    if (!juzData?.data) return new Set<string>();
+    if (!juzData?.data) return null;
     return new Set(juzData.data.filter((j) => !j.class_id).map((j) => j.juz_id));
   }, [juzData]);
 
@@ -113,6 +113,7 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
       .filter((juz) => {
         if (juz.itemCount <= 0) return false;
         if (classId) return true;
+        if (personalJuzIds === null) return true;
         return !juz.juz_id || personalJuzIds.has(juz.juz_id);
       });
   }, [juzEstimates, reviewedIds, personalJuzIds, classId]);
