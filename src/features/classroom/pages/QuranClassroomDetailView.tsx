@@ -260,8 +260,8 @@ export const QuranClassroomDetailView = ({
           <div className="flex items-center justify-between gap-4">
             <button
               type="button"
-              onClick={() => navigate(`/dashboard/kelas/`)}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 transition hover:border-amber-500/40 hover:bg-amber-500/10"
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 transition hover:border-amber-500/40 hover:bg-amber-500/10 cursor-pointer"
             >
               <ArrowLeft className="h-4 w-4" />
               Kembali

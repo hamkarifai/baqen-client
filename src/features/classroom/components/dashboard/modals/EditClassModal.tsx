@@ -139,55 +139,29 @@ export const EditClassModal = ({
               </div>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-gray-400">
-              Ubah nama, deskripsi, tipe, atau URL gambar kelas. Simpan untuk
+              Ubah nama, deskripsi, atau gambar sampul kelas. Simpan untuk
               menerapkan perubahan.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-white">
-                  Nama Kelas <span className="text-rose-400">*</span>
-                </label>
-                <div className="relative">
-                  <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
-                    <LayoutGrid className="h-5 w-5" />
-                  </div>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Contoh: Kelas Tahsin 101"
-                    disabled={isLoading}
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 py-4 pl-11 pr-4 text-white placeholder:text-gray-500 outline-none transition focus:border-cyan-400 focus:bg-white/10"
-                  />
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-white">
+                Nama Kelas <span className="text-rose-400">*</span>
+              </label>
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+                  <LayoutGrid className="h-5 w-5" />
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-white">
-                  Tipe Kelas
-                </label>
-                <div className="relative">
-                  <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
-                    <BookOpen className="h-5 w-5" />
-                  </div>
-                  <select
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    className="w-full appearance-none rounded-2xl border border-white/10 bg-white/5 py-4 pl-11 pr-10 text-white outline-none transition focus:border-cyan-400 focus:bg-white/10"
-                  >
-                    <option value="book">Book</option>
-                    <option value="quran">Quran</option>
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
-                    <ChevronDown className="h-4 w-4" />
-                  </div>
-                </div>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Contoh: Kelas Tahsin 101"
+                  disabled={isLoading}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 py-4 pl-11 pr-4 text-white placeholder:text-gray-500 outline-none transition focus:border-cyan-400 focus:bg-white/10"
+                />
               </div>
             </div>
 
