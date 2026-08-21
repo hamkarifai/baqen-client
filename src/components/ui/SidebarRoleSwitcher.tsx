@@ -126,7 +126,11 @@ export const SidebarRoleSwitcher = ({ onClose }: SidebarRoleSwitcherProps) => {
                     setActiveRole(role);
                     setIsOpen(false);
                     onClose?.();
-                    navigate("/dashboard");
+                    if (role === "student") {
+                      navigate("/dashboard/alquran");
+                    } else {
+                      navigate("/dashboard");
+                    }
                   }}
                   className={clsx(
                     "w-full flex items-center gap-3 p-2 rounded-xl transition-all",
