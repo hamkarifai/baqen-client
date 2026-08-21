@@ -31,12 +31,29 @@ export const useMyCollection = () => {
     } finally {
       setLoadingCollection(false);
     }
-  }, []);
+  const removeFromCollection = useCallback(
+    async (id: string) => {
+      try {
+        setLoadingCollection(true);
+        await personalService.removeFromMyCollection(id);
+        await fetchCollection();
+      } catch (err: any) {
+        setErrorCollection(
+          err?.response?.data?.message ||
+            "Gagal menghapus kitab dari koleksi impor",
+        );
+      } finally {
+        setLoadingCollection(false);
+      }
+    },
+    [fetchCollection],
+  );
 
   return {
     collection,
     loadingCollection,
     errorCollection,
     fetchCollection,
+    removeFromCollection,
   };
 };

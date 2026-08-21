@@ -26,9 +26,15 @@ export const PersonalDashboard = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [bookToDelete, setBookToDelete] = useState<Book | null>(null);
+  const [collectionToDelete, setCollectionToDelete] = useState<Book | null>(null);
 
   const { books, loading, fetchBooks, deleteBook } = useBooks();
-  const { collection, loadingCollection, fetchCollection } = useMyCollection();
+  const {
+    collection,
+    loadingCollection,
+    fetchCollection,
+    removeFromCollection,
+  } = useMyCollection();
 
   useEffect(() => {
     void fetchBooks();
@@ -322,7 +328,7 @@ export const PersonalDashboard = () => {
                     onClick={() =>
                       navigate(`/dashboard/pribadi/book/${book.id}`)
                     }
-                    // onEdit and onDelete not provided to disable editing/deleting global library items
+                    onDelete={(b) => setCollectionToDelete(b)}
                   />
                 ))}
               </div>
@@ -388,6 +394,21 @@ export const PersonalDashboard = () => {
         title="Hapus Kitab?"
         message={`Apakah Anda yakin ingin menghapus kitab "${bookToDelete?.title}" secara permanen? Semua data di dalamnya akan hilang.`}
         confirmText="Hapus Permanen"
+        variant="danger"
+      />
+
+      <ConfirmModal
+        isOpen={!!collectionToDelete}
+        onClose={() => setCollectionToDelete(null)}
+        onConfirm={async () => {
+          if (collectionToDelete) {
+            await removeFromCollection(collectionToDelete.id);
+            setCollectionToDelete(null);
+          }
+        }}
+        title="Hapus Kitab dari Koleksi Impor?"
+        message={`Apakah Anda yakin ingin menghapus kitab "${collectionToDelete?.title}" dari koleksi impor Anda?`}
+        confirmText="Hapus dari Koleksi"
         variant="danger"
       />
     </>
