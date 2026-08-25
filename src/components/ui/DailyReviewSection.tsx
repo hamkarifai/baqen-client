@@ -121,16 +121,8 @@ export const DailyReviewSection = () => {
           });
 
           const reviewableTasks = dailyTasks.filter((t) => {
-            const s = (t.status ?? "").toLowerCase();
             const isDone = t.state === "done" || t.state === "completed";
-            if (isDone) return false;
-            return (
-              s === "" ||
-              s === "interval" ||
-              s === "fsrs_active" ||
-              s === "graduate" ||
-              s === "graduated"
-            );
+            return !isDone;
           });
 
           const dedupedTasks = Array.from(
@@ -220,16 +212,8 @@ export const DailyReviewSection = () => {
           });
 
           const reviewableTasks = dailyBookTasks.filter((t) => {
-            const s = (t.status ?? "").toLowerCase();
             const isDone = t.state === "done" || t.state === "completed";
-            if (isDone) return false;
-            return (
-              s === "" ||
-              s === "interval" ||
-              s === "fsrs_active" ||
-              s === "graduate" ||
-              s === "graduated"
-            );
+            return !isDone;
           });
 
           const dedupedTasks = Array.from(
