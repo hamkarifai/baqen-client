@@ -671,10 +671,10 @@ export const ItemDetailPage = () => {
                             </span>
                             {/* Connector Line */}
                             {idx < arr.length - 1 && (
-                              <div className="absolute top-14 left-10 w-8 h-0.5 bg-gray-700 -z-10">
+                              <div key={`connector-${step.key}`} className="absolute top-14 left-10 w-8 h-0.5 bg-gray-700 -z-10">
                                 {isCompleted ||
                                 (isActive && idx < currentIndex) ? (
-                                  <div className="h-full bg-emerald-500 w-full" />
+                                  <div key={`line-${step.key}`} className="h-full bg-emerald-500 w-full" />
                                 ) : null}
                               </div>
                             )}

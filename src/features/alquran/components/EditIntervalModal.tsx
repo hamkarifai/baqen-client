@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Loader2, AlertCircle, CalendarDays } from "lucide-react";
 import { alquranService } from "@/features/alquran/services/alquran.services";
 import type { EditIntervalDaysPayload, EditIntervalDaysResponse } from "@/features/alquran/types/quran.types";
@@ -57,7 +58,7 @@ export const EditIntervalModal = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/85 backdrop-blur-sm"
@@ -170,6 +171,7 @@ export const EditIntervalModal = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

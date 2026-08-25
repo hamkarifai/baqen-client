@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Loader2, CalendarDays, X } from "lucide-react";
 
 interface IntervalModalProps {
@@ -34,7 +35,7 @@ export const IntervalModal = ({
     await onSubmit(selectedDays);
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       <div
         className="absolute inset-0 bg-black/75 backdrop-blur-md"
@@ -107,6 +108,7 @@ export const IntervalModal = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
