@@ -51,9 +51,13 @@ export const useDailyReviewEstimate = (classId?: string) => {
         : await alquranService.getDaily("quran");
       const dailyTasks = dailyGroups.flatMap((group) => group.items);
 
-      // Only include quran items that are pending review (not yet done/completed).
-      // Any item present in today's daily snapshot is due for review.
+      // Only include valid quran items that are pending review (not yet done/completed).
+      // Any item present in today's daily snapshot with valid metadata is due for review.
       const reviewableTasks = dailyTasks.filter((t) => {
+        if (!t.item_id || !t.content_ref || !t.status) {
+          return false;
+        }
+
         const isDone = t.state === "done" || t.state === "completed";
         return !isDone;
       });
