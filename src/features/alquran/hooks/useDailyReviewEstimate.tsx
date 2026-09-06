@@ -51,17 +51,18 @@ export const useDailyReviewEstimate = (classId?: string) => {
         : await alquranService.getDaily("quran");
       const dailyTasks = dailyGroups.flatMap((group) => group.items);
 
-      // Only include quran items that are pending review (not yet done)
+      // Only include valid quran items that are pending review (not yet done)
       // and have a reviewable status (interval or fsrs_active/graduate).
-      // If status is empty (lookup failed), still include the item — it's in
-      // the daily snapshot so it must be due.
       const reviewableTasks = dailyTasks.filter((t) => {
-        const s = (t.status ?? "").toLowerCase();
+        if (!t.item_id || !t.content_ref || !t.status) {
+          return false;
+        }
+
+        const s = t.status.toLowerCase();
         const isDone = t.state === "done" || t.state === "completed";
         if (isDone) return false;
-        // Include if status is reviewable OR if status is unknown (empty)
+
         return (
-          s === "" ||
           s === "interval" ||
           s === "fsrs_active" ||
           s === "graduate" ||
