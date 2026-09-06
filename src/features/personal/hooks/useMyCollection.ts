@@ -12,8 +12,8 @@ export const useMyCollection = () => {
       setLoadingCollection(true);
       setErrorCollection(null);
       const response = await personalService.getMyCollection();
-      
-      const mappedCollection: Book[] = (response.data || []).map(item => ({
+
+      const mappedCollection: Book[] = (response.data || []).map((item) => ({
         id: item.book_id,
         owner_id: "",
         title: item.title,
@@ -26,17 +26,38 @@ export const useMyCollection = () => {
       }));
       setCollection(mappedCollection);
     } catch (err: any) {
-      setErrorCollection(err?.response?.data?.message || "Gagal mengambil koleksi kitab import");
+      setErrorCollection(
+        err?.response?.data?.message || "Gagal mengambil koleksi kitab import",
+      );
       setCollection([]);
     } finally {
       setLoadingCollection(false);
     }
   }, []);
 
+  const removeFromCollection = useCallback(
+    async (id: string) => {
+      try {
+        setLoadingCollection(true);
+        await personalService.removeFromMyCollection(id);
+        await fetchCollection();
+      } catch (err: any) {
+        setErrorCollection(
+          err?.response?.data?.message ||
+            "Gagal menghapus kitab dari koleksi impor",
+        );
+      } finally {
+        setLoadingCollection(false);
+      }
+    },
+    [fetchCollection],
+  );
+
   return {
     collection,
     loadingCollection,
     errorCollection,
     fetchCollection,
+    removeFromCollection,
   };
 };

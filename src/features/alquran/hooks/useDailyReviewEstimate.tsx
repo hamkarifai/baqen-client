@@ -51,23 +51,15 @@ export const useDailyReviewEstimate = (classId?: string) => {
         : await alquranService.getDaily("quran");
       const dailyTasks = dailyGroups.flatMap((group) => group.items);
 
-      // Only include valid quran items that are pending review (not yet done)
-      // and have a reviewable status (interval or fsrs_active/graduate).
+      // Only include valid quran items that are pending review (not yet done/completed).
+      // Any item present in today's daily snapshot with valid metadata is due for review.
       const reviewableTasks = dailyTasks.filter((t) => {
         if (!t.item_id || !t.content_ref || !t.status) {
           return false;
         }
 
-        const s = t.status.toLowerCase();
         const isDone = t.state === "done" || t.state === "completed";
-        if (isDone) return false;
-
-        return (
-          s === "interval" ||
-          s === "fsrs_active" ||
-          s === "graduate" ||
-          s === "graduated"
-        );
+        return !isDone;
       });
 
       const dedupedTasks = Array.from(
@@ -142,7 +134,7 @@ export const useDailyReviewEstimate = (classId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [classId]);
 
   useEffect(() => {
     void fetchEstimates();

@@ -45,31 +45,26 @@ export const classroomService = {
   updateClass: async (
     classId: string,
     payload: UpdateClassPayload,
-  ): Promise<ClassItem[]> => {
-    if (payload.cover_image instanceof File) {
-      const formData = new FormData();
+  ): Promise<ClassItem> => {
+    const formData = new FormData();
 
-      if (payload.name) {
-        formData.append("name", payload.name);
-      }
-
-      if (payload.description) {
-        formData.append("description", payload.description);
-      }
-
-      formData.append("type", payload.type);
-      formData.append("cover_image", payload.cover_image);
-
-      const response = await api.put(`/api/v1/classes/${classId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      return response.data.data;
+    if (payload.name) {
+      formData.append("name", payload.name);
     }
 
-    const response = await api.put(`/api/v1/classes/${classId}`, payload);
+    if (payload.description !== undefined) {
+      formData.append("description", payload.description);
+    }
+
+    if (payload.cover_image instanceof File) {
+      formData.append("cover_image", payload.cover_image);
+    }
+
+    const response = await api.put(`/api/v1/classes/${classId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     return response.data.data;
   },
@@ -119,7 +114,12 @@ export const classroomService = {
   // CREATE BOOK IN CLASS (TEACHER)
   createBookInClass: async (
     classId: string,
-    payload: { title: string; description?: string; order?: number; cover_image?: File },
+    payload: {
+      title: string;
+      description?: string;
+      order?: number;
+      cover_image?: File;
+    },
   ): Promise<GetClassBook> => {
     const formData = new FormData();
     formData.append("title", payload.title);

@@ -110,13 +110,8 @@ export const DailyReviewSection = ({ classId }: { classId?: string }) => {
         );
         return { ...juz, items, itemCount: items.length, totalEstimatedSeconds };
       })
-      .filter((juz) => {
-        if (juz.itemCount <= 0) return false;
-        if (classId) return true;
-        if (personalJuzIds === null) return true;
-        return !juz.juz_id || personalJuzIds.has(juz.juz_id);
-      });
-  }, [juzEstimates, reviewedIds, personalJuzIds, classId]);
+      .filter((juz) => juz.itemCount > 0);
+  }, [juzEstimates, reviewedIds]);
 
   const totalItems = filteredJuzGroups.reduce((s, j) => s + j.itemCount, 0);
 

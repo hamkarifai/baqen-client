@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, CalendarDays, ChevronRight, Loader2 } from "lucide-react";
 import { useStartInterval } from "@/features/alquran/hooks/useStartInterval";
 
@@ -49,7 +50,7 @@ export const StartIntervalModal = ({
   // Preset pilihan hari yang umum, supaya UX lebih cepat
   const PRESETS = [1, 3, 7, 14, 30];
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop — klik di luar modal untuk tutup */}
       <div
@@ -156,6 +157,7 @@ export const StartIntervalModal = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

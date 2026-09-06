@@ -127,6 +127,13 @@ export const personalService = {
     return response.data;
   },
 
+  async removeFromMyCollection(
+    id: string,
+  ): Promise<{ success: boolean; message: string }> {
+    const response = await api.delete(`/api/v1/books/my-collection/${id}`);
+    return response.data;
+  },
+
   async getPublishedBooks(): Promise<GetBooksResponse> {
     const response = await api.get("/api/v1/books/published");
     return response.data;
