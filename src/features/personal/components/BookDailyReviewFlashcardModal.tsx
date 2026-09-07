@@ -130,10 +130,7 @@ export const BookDailyReviewFlashcardModal = ({
   if (!isOpen || !task) return null;
 
   const currentStatus = itemStatus.toLowerCase();
-  const useFsrsReview =
-    currentStatus === "fsrs_active" ||
-    currentStatus === "graduated" ||
-    currentStatus === "graduate";
+  const useFsrsReview = currentStatus !== "interval";
   const loading = useFsrsReview ? loadingFsrs : loadingInterval;
 
   const formatDate = (dateString: string) =>

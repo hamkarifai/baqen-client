@@ -22,7 +22,6 @@ import {
   Sparkles,
   X,
   ChevronRight,
-  Play,
   Users,
   Eye,
 } from "lucide-react";
@@ -31,7 +30,6 @@ import { useBookDetail } from "@/features/personal/hooks/useBookDetail";
 import { useBookTree } from "@/features/personal/hooks/useBookTree";
 import { useCreateModule } from "@/features/personal/hooks/useCreateModule";
 import { useBookItemStatusMap, contentRefForItem } from "@/features/personal/hooks/useBookItemStatusMap";
-import { useStartItemPhase } from "@/features/personal/hooks/useStartItemPhase";
 import { AddItemModal } from "@/features/personal/components/AddItemModal";
 import { BookItemCard } from "@/features/personal/components/BookItemCard";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
@@ -445,8 +443,8 @@ const StudentProgressDetailModal = ({
   const unreviewed =
     student.total_unreviewed ??
     student.start + student.menghafal + student.interval;
-  const fsrsActive = student.total_fsrs_active ?? student.fsrs_active;
-  const inactive = student.total_inactive ?? student.inactive;
+  const inactive =
+    student.total_inactive ?? student.graduate + student.inactive;
 
   return createPortal(
     <div className="fixed inset-0 z-9999 flex items-center justify-center p-4">
@@ -487,14 +485,6 @@ const StudentProgressDetailModal = ({
                 </span>
                 <span className="text-lg font-mono font-bold text-amber-400">
                   {unreviewed} item
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-                <span className="text-sm font-medium text-emerald-200">
-                  FSRS Aktif
-                </span>
-                <span className="text-lg font-mono font-bold text-emerald-400">
-                  {fsrsActive} item
                 </span>
               </div>
               <div className="flex items-center justify-between p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20">
@@ -588,8 +578,8 @@ const ClassroomBookStudentProgressSection = ({
               const unreviewed =
                 st.total_unreviewed ??
                 st.start + st.menghafal + st.interval;
-              const fsrsActive = st.total_fsrs_active ?? st.fsrs_active;
-              const inactive = st.total_inactive ?? st.inactive;
+              const inactive =
+                st.total_inactive ?? st.graduate + st.inactive;
 
               return (
                 <div
@@ -605,12 +595,6 @@ const ClassroomBookStudentProgressSection = ({
                         <span>Belum di-review</span>
                         <span className="font-mono font-semibold text-amber-400">
                           {unreviewed} item
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-gray-400">
-                        <span>Aktif FSRS</span>
-                        <span className="font-mono font-semibold text-emerald-400">
-                          {fsrsActive} item
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-gray-400">
@@ -658,7 +642,6 @@ export const ClassroomBookDetailView = () => {
   const { book, loading, error, fetchBookDetail } = useBookDetail();
   const { tree, fetchBookTree, addModuleToTree, addItemToTree } = useBookTree();
   const { statusMap, fetchStatusMap } = useBookItemStatusMap();
-  const { startPhase, loading: startLoading } = useStartItemPhase();
 
   const [modalStep, setModalStep] = useState<
     null | "picker" | "module" | "item"
@@ -699,18 +682,6 @@ export const ClassroomBookDetailView = () => {
       updated_at: created.updated_at,
     });
     void fetchBookTree(bookId!, true);
-  };
-
-  const handleStartItem = async (itemId: string) => {
-    if (!bookId) return;
-    try {
-      await startPhase(bookId, itemId);
-      navigate(
-        `/dashboard/pribadi/book/${bookId}/item/${itemId}`,
-      );
-    } catch {
-      toast.error("Gagal memulai item.");
-    }
   };
 
   const formatDate = (dateStr: string) =>
@@ -992,28 +963,12 @@ export const ClassroomBookDetailView = () => {
                         .slice()
                         .sort((a, b) => a.order - b.order)
                         .map((item) => (
-                          <div key={item.id} className="relative">
-                            <BookItemCard
-                              item={item}
-                              bookId={bookId!}
-                              realItemId={statusMap.get(contentRefForItem(bookId!, item.id))?.item_id}
-                            />
-                            {!isTeacher && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-                                  handleStartItem(item.id);
-                                }}
-                                disabled={startLoading}
-                                className="absolute bottom-4 left-4 right-4 flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-emerald-900/30 cursor-pointer"
-                              >
-                                <Play className="w-4 h-4" />
-                                {startLoading ? "Memulai..." : "Mulai"}
-                              </button>
-                            )}
-                          </div>
+                          <BookItemCard
+                            key={item.id}
+                            item={item}
+                            bookId={bookId!}
+                            realItemId={statusMap.get(contentRefForItem(bookId!, item.id))?.item_id}
+                          />
                         ))}
                     </div>
                   </div>
